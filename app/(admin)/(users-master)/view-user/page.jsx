@@ -1,10 +1,12 @@
 import AddUser from '@/components/admin/users/add-user'
 import React from 'react'
-
+import { Suspense } from 'react'
 const page = () => {
   return (
     <>
-      <AddUser type="View" />
+      <Suspense fallback={<div>Loading...</div>}>
+        <AddUser type="View" />
+      </Suspense>
     </>
   )
 }
