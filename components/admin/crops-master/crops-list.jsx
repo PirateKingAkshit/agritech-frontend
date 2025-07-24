@@ -26,7 +26,7 @@ const CropsList = () => {
 
   const [deleteId, setDeleteId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
+  const FileUrl = process.env.NEXT_PUBLIC_FILEURL || "http://localhost:5000/"
 
   const fetchCrops = async () => {
     try {
@@ -191,7 +191,7 @@ const CropsList = () => {
           </div>
 
           {/* Add Button */}
-          <Link href="/add-user">
+          <Link href="/add-crops">
             <Button
               variant="outline"
               size="sm"
