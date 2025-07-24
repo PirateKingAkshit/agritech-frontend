@@ -1,5 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
+import { Button } from "./ui/button";
 
 const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
@@ -32,18 +33,20 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
 
         {/* Action Buttons */}
         <div className="mt-6 flex justify-end gap-2">
-          <button
+          <Button
+            variant="outline"
             onClick={onClose}
             className="px-4 py-2 text-sm rounded-md border border-input text-foreground hover:bg-muted transition"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="destructive"
             onClick={onConfirm}
             className="px-4 py-2 text-sm rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 transition"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>

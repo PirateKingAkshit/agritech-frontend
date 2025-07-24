@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, Edit, Trash } from "lucide-react";
+import { Eye, Edit, Trash, LucideToggleLeft, LucideToggleRight } from "lucide-react";
 import { IconPlus } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
@@ -26,7 +26,7 @@ const CropsList = () => {
 
   const [deleteId, setDeleteId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const FileUrl = process.env.NEXT_PUBLIC_FILEURL || "http://localhost:5000/"
+  const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
 
   const fetchCrops = async () => {
     try {
@@ -120,6 +120,7 @@ const CropsList = () => {
                 alt="Crop Image"
                 fill
                 className="rounded-full object-cover"
+                sizes="100px"
               />
             </div>
           );
@@ -129,20 +130,25 @@ const CropsList = () => {
       { header: "Variety", accessorKey: "variety" },
       { header: "Season", accessorKey: "season" },
       {
-        header: "Created At",
-        accessorKey: "createdAt",
-        cell: ({ getValue }) => {
-          const date = new Date(getValue());
-          return date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-        },
+        header: "Status",
+        accessorKey: "isActive",
+        cell: ({ getValue }) => (getValue() ? "Active" : "Inactive"),
       },
     ],
     []
   );
+
+  const handleToggleStatus = async (id, isActive) => {
+    try {
+      const response = isActive ? await instance.put(`/crop-master/disable/${id}`) : await instance.put(`/crop-master/enable/${id}`);
+      if (response?.status === 200) {
+        showSuccess(response?.data?.message);
+        fetchCrops();
+      }
+    } catch (error) {
+      console.error("Toggle status error:", error);
+    }
+  };
 
   const renderActions = (crop) => (
     <div className="flex gap-2">
@@ -160,6 +166,13 @@ const CropsList = () => {
       >
         <Edit size={16} />
       </Link>
+      <button
+        onClick={() => handleToggleStatus(crop._id, crop.isActive)}
+        className="text-green-600 hover:text-green-800 cursor-pointer"
+        title={crop.isActive ? "Inactive" : "Active"}
+      >
+        {crop.isActive ? <LucideToggleRight size={16} /> : <LucideToggleLeft size={16} />}
+      </button>
       <button
         onClick={() => openDeleteModal(crop._id)}
         className="text-red-600 hover:text-red-800"
@@ -182,7 +195,7 @@ const CropsList = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search by phone, name or email"
+              placeholder="Search by name or description or category or variety or season"
               className="w-full border border-border rounded px-3 py-2 text-sm bg-background"
             />
             <Button onClick={handleSearch} variant="default" size="sm">
@@ -193,7 +206,7 @@ const CropsList = () => {
           {/* Add Button */}
           <Link href="/add-crops">
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={() => router.push("/add-crops")}
               className="gap-2"

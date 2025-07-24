@@ -42,8 +42,8 @@ export function LoginForm({ className, ...props }) {
     try {
       const response = await axios.post("/users/login", formData);
       if (response?.status === 200) {
-        setCookie("token", JSONStringify(response?.data?.token));
-        setCookie("user", JSONStringify(response?.data?.data));
+        setCookie("token", JSONStringify(response?.data?.token),{maxAge: 60 * 60 * 24 * 30});
+        setCookie("user", JSONStringify(response?.data?.data),{maxAge: 60 * 60 * 24 * 30});
         showSuccess(response?.data?.message);
         router.push("/dashboard");
       }

@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
 import { Button } from "@/components/ui/button";
 import { Loader, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
 const AddCrop = ({ type }) => {
   const instance = axiosInstance();
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -68,51 +70,51 @@ const AddCrop = ({ type }) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > maxSize) {
-        imageRef.current.value = ""
+        imageRef.current.value = "";
         setErrors((prev) => ({
           ...prev,
           image: "Image size should not exceed 2MB",
         }));
         setFormData({
-        ...formData,
-        image: null,
-      });
-        return
+          ...formData,
+          image: null,
+        });
+        return;
       }
       if (!allowedTypes.includes(file.type)) {
-      imageRef.current.value = ""
-      setErrors((prev) => ({
-        ...prev,
-        image: "Only .jpg, .jpeg, .png, or .webp files are allowed",
-      }));
-      setFormData({
-        ...formData,
-        image: null,
-      });
-      return
-    }
+        imageRef.current.value = "";
+        setErrors((prev) => ({
+          ...prev,
+          image: "Only .jpg, .jpeg, .png, or .webp files are allowed",
+        }));
+        setFormData({
+          ...formData,
+          image: null,
+        });
+        return;
+      }
       setFormData({
         ...formData,
         image: file,
       });
       setErrors((prev) => ({
-          ...prev,
-          image: "",
-        }));
+        ...prev,
+        image: "",
+      }));
     } else {
       setFormData({
         ...formData,
         image: null,
       });
       setErrors((prev) => ({
-          ...prev,
-          image: "",
-        }));
+        ...prev,
+        image: "",
+      }));
     }
   };
 
   const handleImageDelete = () => {
-    imageRef.current.value = ""
+    imageRef.current.value = "";
     setFormData({
       ...formData,
       image: null,
@@ -128,14 +130,14 @@ const AddCrop = ({ type }) => {
       if (response.data?.data) {
         const crop = response.data.data;
         setFormData({
-          category: crop.category||"",
-          description: crop.description||"",
-          name: crop.name||"",
-          variety: crop.variety||"",
-          season: crop.season||"",
-          image: crop?.image||null,
-          createdAt: crop.createdAt||"",
-          updatedAt: crop.updatedAt||"",
+          category: crop.category || "",
+          description: crop.description || "",
+          name: crop.name || "",
+          variety: crop.variety || "",
+          season: crop.season || "",
+          image: crop?.image || null,
+          createdAt: crop.createdAt || "",
+          updatedAt: crop.updatedAt || "",
         });
       }
     } catch (error) {
@@ -144,7 +146,7 @@ const AddCrop = ({ type }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();   
+    e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -153,7 +155,7 @@ const AddCrop = ({ type }) => {
     setErrors({});
     setIsSubmitting(true);
     try {
-        const formDataToSend = new FormData();
+      const formDataToSend = new FormData();
 
       Object.entries(formData).forEach(([key, value]) => {
         formDataToSend.append(key, value);
@@ -193,7 +195,7 @@ const AddCrop = ({ type }) => {
       Object.entries(formData).forEach(([key, value]) => {
         formDataToSend.append(key, value);
       });
-      if (formDataToSend.image === "null"){
+      if (formDataToSend.image === "null") {
         delete formDataToSend.image;
       }
       const response = await instance.put(`/crop-master/${id}`, formDataToSend);
@@ -232,7 +234,7 @@ const AddCrop = ({ type }) => {
             {type === "View" ? "View Crop" : `${type} Crop`}
           </h2>
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={() => router.push("/crops-list")}
             className="gap-2"
@@ -377,24 +379,25 @@ const AddCrop = ({ type }) => {
               />
               {formData.image && formData.image !== "null" && (
                 <>
-                  <img
-                    src={
-                      typeof formData.image === "string"
-                        ? `${process.env.NEXT_PUBLIC_FILEURL}${formData?.image?.replace(/\\/g, "/")}`
-                        : URL.createObjectURL(formData.image)
-                    }
+                  <Image
+                    src={`${FileUrl}${formData?.image?.replace(/\\/g, "/")}`}
                     alt="Selected"
+                    width={128}
+                    height={128}
                     className="mt-2 h-32 w-32 object-cover rounded"
                   />
-                  <button
-                    type="button"
-                    className="mt-2 px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
-                    onClick={()=>{
-                        handleImageDelete()
-                    }}
-                  >
-                    Remove
-                  </button>
+                  {type !== "View" && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="mt-2 px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                      onClick={() => {
+                        handleImageDelete();
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  )}
                 </>
               )}
               {errors.image && (

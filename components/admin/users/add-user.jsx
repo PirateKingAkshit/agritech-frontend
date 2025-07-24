@@ -196,7 +196,7 @@ const AddUser = ({ type }) => {
             {type === "View" ? "View User" : `${type} User`}
           </h2>
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={() => router.push("/users-list")}
             className="gap-2"

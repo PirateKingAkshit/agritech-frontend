@@ -37,7 +37,6 @@ export function NavUser() {
     router.push('/login')
   }
   const user = hasCookie('user') ? JSONParse(getCookie('user')) : null
-  console.log(user)
   return (
     <SidebarMenu>
       <SidebarMenuItem>

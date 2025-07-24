@@ -10,6 +10,7 @@ import DataTable from "@/components/table-component/data-table";
 import Pagination from "@/components/pagination-component/pagination";
 import axiosInstance from "@/lib/axiosInstance";
 import { showSuccess } from "@/lib/toastUtils";
+import { format } from "date-fns";
 
 const UserList = () => {
   const router = useRouter();
@@ -112,11 +113,7 @@ const UserList = () => {
         accessorKey: "createdAt",
         cell: ({ getValue }) => {
           const date = new Date(getValue());
-          return date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
+          return format(date, "MMM dd, yyyy");
         },
       },
     ],
@@ -172,7 +169,7 @@ const UserList = () => {
           {/* Add Button */}
           <Link href="/add-user">
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={() => router.push("/add-user")}
             className="gap-2"
