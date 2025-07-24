@@ -20,11 +20,6 @@ import Link from "next/link";
 
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -32,12 +27,12 @@ const data = {
       icon: LucideLayoutDashboard,
     },
     {
-      title: "UserMaster",
+      title: "User Master",
       url: "/users-list",
       icon: LucideUser,
     },
     {
-      title: "CropMaster",
+      title: "Crop Master",
       url: "/crops-list",
       icon: LucideVegan,
     },
@@ -56,7 +51,7 @@ export function AppSidebar({ ...props }) {
             >
               <Link href="/dashboard">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">AgriTech</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

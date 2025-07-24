@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,12 +14,54 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import axiosInstance from "@/lib/axiosInstance";
+import { setCookie } from "cookies-next";
+import { showSuccess } from "@/lib/toastUtils";
+import { JSONStringify } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ className, ...props }) {
+  const axios = axiosInstance();
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setErrors(null);
+    setIsLoading(true);
+    try {
+      const response = await axios.post("/users/login", formData);
+      if (response?.status === 200) {
+        setCookie("token", JSONStringify(response?.data?.token));
+        setCookie("user", JSONStringify(response?.data?.data));
+        showSuccess(response?.data?.message);
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+      if (error?.response?.data?.error?.errors) {
+        const validationErrors = error?.response?.data?.error?.errors;
+        if (validationErrors && Array.isArray(validationErrors)) {
+          const newErrors = {};
+          validationErrors.forEach((err) => {
+            newErrors[err.field] = err.message;
+          });
+          setErrors(newErrors);
+        }
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -32,7 +74,7 @@ export function LoginForm({ className, ...props }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleLogin} >
             <div className="grid gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
@@ -40,28 +82,42 @@ export function LoginForm({ className, ...props }) {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  required
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
+                {errors?.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors?.email}</p>
+                )}
               </div>
 
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <Link
+                  {/* <Link
                     href="/forgot-password"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </Link>
+                  </Link> */}
                 </div>
 
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    required
                     className="pr-10"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                   />
+                  {errors?.password && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors?.password}
+                    </p>
+                  )}
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
@@ -78,7 +134,11 @@ export function LoginForm({ className, ...props }) {
               </div>
 
               <Button type="submit" className="w-full cursor-pointer">
-                Login
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Login"
+                )}
               </Button>
             </div>
           </form>
