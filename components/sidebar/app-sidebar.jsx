@@ -2,11 +2,9 @@
 
 import * as React from "react";
 import {
-  IconDashboard,
   IconInnerShadowTop,
-  IconListDetails,
 } from "@tabler/icons-react";
-
+import { LucideVegan, LucideUser,LucideLayoutDashboard } from "lucide-react";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
@@ -20,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 
+
 const data = {
   user: {
     name: "shadcn",
@@ -30,12 +29,17 @@ const data = {
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: IconDashboard,
+      icon: LucideLayoutDashboard,
     },
     {
       title: "UserMaster",
       url: "/users-list",
-      icon: IconListDetails,
+      icon: LucideUser,
+    },
+    {
+      title: "CropMaster",
+      url: "/crops-list",
+      icon: LucideVegan,
     },
   ],
 };

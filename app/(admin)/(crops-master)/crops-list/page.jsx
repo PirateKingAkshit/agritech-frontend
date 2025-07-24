@@ -1,10 +1,12 @@
 import CropsList from '@/components/admin/crops-master/crops-list'
 import React from 'react'
-
+import { Suspense } from 'react'
 const page = () => {
   return (
     <>
-      <CropsList />
+      <Suspense fallback={<div>Loading...</div>}>
+        <CropsList />
+      </Suspense>
     </>
   )
 }
