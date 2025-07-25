@@ -163,7 +163,7 @@ const AddCrop = ({ type }) => {
       const response = await instance.post("/crop-master/", formDataToSend);
       if (response?.status === 201) {
         showSuccess(response?.data?.message || "Crop added successfully");
-        router.push("/crops-list");
+        router.push("/admin/crops-list"); 
       }
     } catch (error) {
       console.log(error);
@@ -201,7 +201,7 @@ const AddCrop = ({ type }) => {
       const response = await instance.put(`/crop-master/${id}`, formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Crop updated successfully");
-        router.push("/crops-list");
+        router.push("/admin/crops-list");
       }
     } catch (error) {
       console.log(error);
@@ -236,7 +236,7 @@ const AddCrop = ({ type }) => {
           <Button
             variant="default"
             size="sm"
-            onClick={() => router.push("/crops-list")}
+            onClick={() => router.push("/admin/crops-list")}
             className="gap-2"
           >
             <ArrowLeft size={16} />
@@ -252,7 +252,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="name"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Name
+                Name *
               </label>
               <input
                 type="text"
@@ -274,7 +274,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="category"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Category
+                Category *
               </label>
               <input
                 type="text"
@@ -296,7 +296,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="description"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Description
+                Description *
               </label>
               <input
                 type="text"
@@ -320,7 +320,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="variety"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Variety
+                Variety *
               </label>
               <input
                 type="text"
@@ -342,7 +342,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="season"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Season
+                Season *
               </label>
               <input
                 type="text"

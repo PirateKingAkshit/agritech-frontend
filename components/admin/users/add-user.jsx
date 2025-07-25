@@ -27,7 +27,7 @@ const AddUser = ({ type }) => {
     state: "",
     city: "",
     address: "",
-    role: "",
+    role: "User",
     createdAt: "",
     updatedAt: "",
   });
@@ -56,24 +56,6 @@ const AddUser = ({ type }) => {
     return newErrors;
   };
 
-  const cleanPayload = (data) => {
-    const payload = { phone: data.phone }; // Always include required phone
-    if (data.email.trim()) payload.email = data.email;
-    if (data.password.trim() && type === "Add") payload.password = data.password;
-    if (data.first_name.trim()) payload.first_name = data.first_name;
-    if (data.last_name.trim()) payload.last_name = data.last_name;
-    if (data.state.trim()) payload.state = data.state;
-    if (data.city.trim()) payload.city = data.city;
-    if (data.address.trim()) payload.address = data.address;
-    if (data.role) payload.role = data.role;
-    // Only include location if both lat and long are non-empty and valid numbers
-    const lat = data.location.lat ? parseFloat(data.location.lat) : null;
-    const long = data.location.long ? parseFloat(data.location.long) : null;
-    if (lat !== null && long !== null && !isNaN(lat) && !isNaN(long)) {
-      payload.location = { lat, long };
-    }
-    return payload;
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,10 +110,10 @@ const AddUser = ({ type }) => {
     setErrors({});
     setIsSubmitting(true);
     try {
-      const response = await instance.post("/users/register", cleanPayload(formData));
+      const response = await instance.post("/users/register", formData);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "User registered successfully");
-        router.push("/users-list");
+        router.push("/admin/users-list");
       }
     } catch (error) {
       console.log(error);
@@ -160,10 +142,10 @@ const AddUser = ({ type }) => {
     setErrors({});
     setIsSubmitting(true);
     try {
-      const response = await instance.put(`/users/${id}`, cleanPayload(formData));
+      const response = await instance.put(`/users/${id}`, formData);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "User updated successfully");
-        router.push("/users-list");
+        router.push("/admin/users-list");
       }
     } catch (error) {
       console.log(error);
@@ -198,7 +180,7 @@ const AddUser = ({ type }) => {
           <Button
             variant="default"
             size="sm"
-            onClick={() => router.push("/users-list")}
+            onClick={() => router.push("/admin/users-list")}  
             className="gap-2"
           >
             <ArrowLeft size={16} />

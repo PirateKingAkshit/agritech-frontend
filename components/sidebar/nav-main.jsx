@@ -15,8 +15,22 @@ import { usePathname } from "next/navigation";
 
 export function NavMain({ items }) {
   const pathname = usePathname();
-
   const isActive = (url) => pathname === url;
+
+  const routeGroups = {
+    "/admin/dashboard": ["/admin/dashboard"],
+    "/admin/users-list": ["/admin/users-list", "/admin/add-user", "/admin/edit-user", "/admin/view-user"],
+    "/admin/crops-list": ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"],
+  };
+  
+  const getUrl = (url) => {
+    const group = Object.entries(routeGroups).find(([, paths]) =>
+      paths.includes(pathname)
+    );
+    return group?.[0] === url;
+  };
+  
+
 
   return (
     <SidebarGroup>
@@ -26,7 +40,7 @@ export function NavMain({ items }) {
             <Link href={item.url} key={item.title}>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={isActive(item.url)}
+                  isActive={getUrl(item.url)}
                   tooltip={item.title}
                 >
                   {item.icon && <item.icon />}

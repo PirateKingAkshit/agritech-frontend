@@ -5,12 +5,13 @@ import Link from "next/link";
 import { Eye, Edit, Trash, LucideToggleLeft, LucideToggleRight } from "lucide-react";
 import { IconPlus } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import ConfirmationModal from "@/components/confirmation-modal";
 import DataTable from "@/components/table-component/data-table";
 import Pagination from "@/components/pagination-component/pagination";
 import axiosInstance from "@/lib/axiosInstance";
 import { showSuccess } from "@/lib/toastUtils";
 import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 
 const CropsList = () => {
   const router = useRouter();
@@ -24,7 +25,8 @@ const CropsList = () => {
   const [limit, setLimit] = useState(10);
   const [searchText, setSearchText] = useState("");
 
-  const [deleteId, setDeleteId] = useState(null);
+  const [modalType, setModalType] = useState(null); // 'delete' | 'toggle'
+  const [selectedCrop, setSelectedCrop] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
 
@@ -67,24 +69,48 @@ const CropsList = () => {
   };
 
   const openDeleteModal = (id) => {
-    setDeleteId(id);
+    setSelectedCrop({ id });
+    setModalType('delete');
+    setIsModalOpen(true);
+  };
+
+  const openToggleModal = (crop) => {
+    setSelectedCrop(crop);
+    setModalType('toggle');
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setDeleteId(null);
+    setSelectedCrop(null);
+    setModalType(null);
     setIsModalOpen(false);
   };
 
-  const deleteUser = async () => {
+  const handleDelete = async () => {
     try {
-      const response = await instance.delete(`/crop-master/${deleteId}`);
+      const response = await instance.delete(`/crop-master/${selectedCrop.id}`);
       if (response?.status === 200) {
         showSuccess(response?.data?.message);
         fetchCrops();
       }
     } catch (error) {
       console.error("Delete error:", error);
+    }
+    closeModal();
+  };
+
+  const handleToggleStatus = async () => {
+    if (!selectedCrop) return;
+    try {
+      const response = selectedCrop.isActive
+        ? await instance.put(`/crop-master/disable/${selectedCrop._id}`)
+        : await instance.put(`/crop-master/enable/${selectedCrop._id}`);
+      if (response?.status === 200) {
+        showSuccess(response?.data?.message);
+        fetchCrops();
+      }
+    } catch (error) {
+      console.error("Toggle status error:", error);
     }
     closeModal();
   };
@@ -132,42 +158,36 @@ const CropsList = () => {
       {
         header: "Status",
         accessorKey: "isActive",
-        cell: ({ getValue }) => (getValue() ? "Active" : "Inactive"),
+        cell: ({ getValue }) => (
+          getValue() ? (
+            <Badge variant="default" className="bg-primary text-primary-foreground">Active</Badge>
+          ) : (
+            <Badge variant="secondary" className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]">Inactive</Badge>
+          )
+        ),
       },
     ],
     []
   );
 
-  const handleToggleStatus = async (id, isActive) => {
-    try {
-      const response = isActive ? await instance.put(`/crop-master/disable/${id}`) : await instance.put(`/crop-master/enable/${id}`);
-      if (response?.status === 200) {
-        showSuccess(response?.data?.message);
-        fetchCrops();
-      }
-    } catch (error) {
-      console.error("Toggle status error:", error);
-    }
-  };
-
   const renderActions = (crop) => (
     <div className="flex gap-2">
       <Link
-        href={`/view-crops?id=${crop._id}`}
+        href={`/admin/view-crops?id=${crop._id}`}
         className="text-blue-600 hover:text-blue-800"
         title="Preview"
       >
         <Eye size={16} />
       </Link>
       <Link
-        href={`/edit-crops?id=${crop._id}`}
+        href={`/admin/edit-crops?id=${crop._id}`}
         className="text-yellow-600 hover:text-yellow-800"
         title="Edit"
       >
         <Edit size={16} />
       </Link>
       <button
-        onClick={() => handleToggleStatus(crop._id, crop.isActive)}
+        onClick={() => openToggleModal(crop)}
         className="text-green-600 hover:text-green-800 cursor-pointer"
         title={crop.isActive ? "Inactive" : "Active"}
       >
@@ -175,7 +195,7 @@ const CropsList = () => {
       </button>
       <button
         onClick={() => openDeleteModal(crop._id)}
-        className="text-red-600 hover:text-red-800"
+        className="text-red-600 hover:text-red-800 cursor-pointer"
         title="Delete"
       >
         <Trash size={16} />
@@ -204,11 +224,10 @@ const CropsList = () => {
           </div>
 
           {/* Add Button */}
-          <Link href="/add-crops">
+          <Link href="/admin/add-crops">
             <Button
               variant="default"
               size="sm"
-              onClick={() => router.push("/add-crops")}
               className="gap-2"
             >
               <IconPlus size={16} />
@@ -241,10 +260,34 @@ const CropsList = () => {
       </div>
 
       {/* Modal */}
-      <DeleteConfirmationModal
+      <ConfirmationModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        onConfirm={deleteUser}
+        onConfirm={
+          modalType === 'delete' ? handleDelete :
+          modalType === 'toggle' ? handleToggleStatus :
+          undefined
+        }
+        title={
+          modalType === 'delete' ? 'Confirm Deletion' :
+          modalType === 'toggle' && selectedCrop ? (selectedCrop.isActive ? 'Disable Crop' : 'Enable Crop') :
+          ''
+        }
+        description={
+          modalType === 'delete' ? 'Are you sure you want to delete this crop? This action cannot be undone.' :
+          modalType === 'toggle' && selectedCrop ? (
+            selectedCrop.isActive
+              ? 'Are you sure you want to disable this crop? You can enable it again later.'
+              : 'Are you sure you want to enable this crop?'
+          ) :
+          ''
+        }
+        confirmButtonText={
+          modalType === 'delete' ? 'Delete' :
+          modalType === 'toggle' && selectedCrop ? (selectedCrop.isActive ? 'Disable' : 'Enable') :
+          ''
+        }
+        confirmButtonVariant={modalType === 'delete' ? 'outline' : 'outline'}
       />
     </div>
   );

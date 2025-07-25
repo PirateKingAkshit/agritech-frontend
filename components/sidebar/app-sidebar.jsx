@@ -23,17 +23,17 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/dashboard",
+      url: "/admin/dashboard",
       icon: LucideLayoutDashboard,
     },
     {
       title: "User Master",
-      url: "/users-list",
+      url: "/admin/users-list",
       icon: LucideUser,
     },
     {
       title: "Crop Master",
-      url: "/crops-list",
+      url: "/admin/crops-list",
       icon: LucideVegan,
     },
   ],
@@ -49,8 +49,8 @@ export function AppSidebar({ ...props }) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link href="/dashboard">
-                <IconInnerShadowTop className="!size-5" />
+              <Link href="/admin/dashboard">
+                <LucideVegan className="!size-5" />
                 <span className="text-base font-semibold">AgriTech</span>
               </Link>
             </SidebarMenuButton>
@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

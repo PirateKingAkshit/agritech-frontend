@@ -45,7 +45,7 @@ export function LoginForm({ className, ...props }) {
         setCookie("token", JSONStringify(response?.data?.token),{maxAge: 60 * 60 * 24 * 30});
         setCookie("user", JSONStringify(response?.data?.data),{maxAge: 60 * 60 * 24 * 30});
         showSuccess(response?.data?.message);
-        router.push("/dashboard");
+        router.push("/admin/dashboard");
       }
     } catch (error) {
       console.log(error);

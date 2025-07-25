@@ -5,12 +5,13 @@ import Link from "next/link";
 import { Eye, Edit, Trash } from "lucide-react";
 import { IconPlus } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import ConfirmationModal from "@/components/confirmation-modal";
 import DataTable from "@/components/table-component/data-table";
 import Pagination from "@/components/pagination-component/pagination";
 import axiosInstance from "@/lib/axiosInstance";
 import { showSuccess } from "@/lib/toastUtils";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 const UserList = () => {
   const router = useRouter();
@@ -106,7 +107,13 @@ const UserList = () => {
       {
         header: "Status",
         accessorKey: "isActive",
-        cell: ({ getValue }) => (getValue() ? "Active" : "Inactive"),
+        cell: ({ getValue }) => (
+          getValue() ? (
+            <Badge variant="default" className="bg-primary text-primary-foreground">Active</Badge>
+          ) : (
+            <Badge variant="secondary" className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]">Inactive</Badge>
+          )
+        ),
       },
       {
         header: "Created At",
@@ -123,14 +130,14 @@ const UserList = () => {
   const renderActions = (user) => (
     <div className="flex gap-2">
       <Link
-        href={`/view-user?id=${user._id}`}
+        href={`/admin/view-user?id=${user._id}`}
         className="text-blue-600 hover:text-blue-800"
         title="Preview"
       >
         <Eye size={16} />
       </Link>
       <Link
-        href={`/edit-user?id=${user._id}`}
+        href={`/admin/edit-user?id=${user._id}`}
         className="text-yellow-600 hover:text-yellow-800"
         title="Edit"
       >
@@ -138,7 +145,7 @@ const UserList = () => {
       </Link>
       <button
         onClick={() => openDeleteModal(user._id)}
-        className="text-red-600 hover:text-red-800"
+        className="text-red-500 hover:text-red-800 cursor-pointer"
         title="Delete"
       >
         <Trash size={16} />
@@ -167,11 +174,10 @@ const UserList = () => {
           </div>
 
           {/* Add Button */}
-          <Link href="/add-user">
+          <Link href="/admin/add-user">
           <Button
             variant="default"
             size="sm"
-            onClick={() => router.push("/add-user")}
             className="gap-2"
           >
             <IconPlus size={16} />
@@ -204,10 +210,14 @@ const UserList = () => {
       </div>
 
       {/* Modal */}
-      <DeleteConfirmationModal
+      <ConfirmationModal
         isOpen={isModalOpen}
         onClose={closeModal}
         onConfirm={deleteUser}
+        title="Confirm Deletion"
+        description="Are you sure you want to delete this user? This action cannot be undone."
+        confirmButtonText="Delete"
+        confirmButtonVariant="outline"
       />
     </div>
   );

@@ -27,8 +27,13 @@ import {
 import { deleteCookie, getCookie, hasCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { JSONParse } from "@/lib/utils";
+import { useContext } from "react";
+import ThemeContext from "@/context/ThemeContext";
+import { Sun,Moon } from "lucide-react";
 
 export function NavUser() {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
   const { isMobile } = useSidebar();
   const router = useRouter()
   const handleLogout = () => {
@@ -85,6 +90,10 @@ export function NavUser() {
                 <IconUserCircle />
                 Profile
               </DropdownMenuItem>
+              {/* <DropdownMenuItem onClick={toggleTheme}>
+                {theme === "dark" ? <Sun /> : <Moon />}
+                {theme === "dark" ? "Light Mode" : "Dark Mode"}
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
