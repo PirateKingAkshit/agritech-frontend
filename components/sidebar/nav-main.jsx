@@ -21,6 +21,7 @@ export function NavMain({ items }) {
     "/admin/dashboard": ["/admin/dashboard"],
     "/admin/users-list": ["/admin/users-list", "/admin/add-user", "/admin/edit-user", "/admin/view-user"],
     "/admin/crops-list": ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"],
+    "/admin/products-list": ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"],
   };
   
   const getUrl = (url) => {

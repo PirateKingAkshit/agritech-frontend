@@ -13,34 +13,34 @@ import { showSuccess } from "@/lib/toastUtils";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
-const CropsList = () => {
+const ProductsList = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPage = Number(searchParams.get("page")) || 1;
 
   const instance = axiosInstance();
-  const [crops, setCrops] = useState([]);
+  const [products, setProducts] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [limit, setLimit] = useState(10);
   const [searchText, setSearchText] = useState("");
 
   const [modalType, setModalType] = useState(null); // 'delete' | 'toggle'
-  const [selectedCrop, setSelectedCrop] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
 
-  const fetchCrops = async () => {
+  const fetchProducts = async () => {
     try {
       const query = searchText.trim()
-        ? `/crop-master?q=${searchText.trim()}`
-        : `/crop-master?page=${currentPage}&limit=${limit}`;
+        ? `/product-master?q=${searchText.trim()}`
+        : `/product-master?page=${currentPage}&limit=${limit}`;
 
       const response = await instance.get(query);
 
       if (response?.status === 200) {
         const { data, pagination } = response.data;
-        setCrops(data || []);
+        setProducts(data || []);
         if (!searchText.trim() && pagination) {
           setCurrentPage(pagination.currentPage);
           setLimit(pagination.limit);
@@ -50,18 +50,18 @@ const CropsList = () => {
         }
       }
     } catch (error) {
-      console.error("Error fetching crops:", error);
+      console.error("Error fetching products:", error);
     }
   };
 
   useEffect(() => {
-    fetchCrops();
+    fetchProducts();
   }, [currentPage, limit]);
 
   const handleSearch = () => {
     setCurrentPage(1);
     router.push(`?page=1`);
-    fetchCrops();
+    fetchProducts();
   };
 
   const handleKeyDown = (e) => {
@@ -69,29 +69,29 @@ const CropsList = () => {
   };
 
   const openDeleteModal = (id) => {
-    setSelectedCrop({ id });
+    setSelectedProduct({ id });
     setModalType('delete');
     setIsModalOpen(true);
   };
 
-  const openToggleModal = (crop) => {
-    setSelectedCrop(crop);
+  const openToggleModal = (product) => {
+    setSelectedProduct(product);
     setModalType('toggle');
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setSelectedCrop(null);
+    setSelectedProduct(null);
     setModalType(null);
     setIsModalOpen(false);
   };
 
   const handleDelete = async () => {
     try {
-      const response = await instance.delete(`/crop-master/${selectedCrop.id}`);
+      const response = await instance.delete(`/product-master/${selectedProduct.id}`);
       if (response?.status === 200) {
         showSuccess(response?.data?.message);
-        fetchCrops();
+        fetchProducts();
       }
     } catch (error) {
       console.error("Delete error:", error);
@@ -100,14 +100,14 @@ const CropsList = () => {
   };
 
   const handleToggleStatus = async () => {
-    if (!selectedCrop) return;
+    if (!selectedProduct) return;
     try {
-      const response = selectedCrop.isActive
-        ? await instance.put(`/crop-master/disable/${selectedCrop._id}`)
-        : await instance.put(`/crop-master/enable/${selectedCrop._id}`);
+      const response = selectedProduct.isActive
+        ? await instance.put(`/product-master/disable/${selectedProduct._id}`)
+        : await instance.put(`/product-master/enable/${selectedProduct._id}`);
       if (response?.status === 200) {
         showSuccess(response?.data?.message);
-        fetchCrops();
+        fetchProducts();
       }
     } catch (error) {
       console.error("Toggle status error:", error);
@@ -133,6 +133,10 @@ const CropsList = () => {
       //   ),
       // },
       {
+        header: "SKU Code",
+        accessorKey: "skuCode",
+      },
+      {
         header: "Image",
         accessorKey: "image",
         cell: ({ getValue }) => {
@@ -143,7 +147,7 @@ const CropsList = () => {
             <div className="relative w-10 h-10">
               <Image
                 src={imageUrl}
-                alt="Crop Image"
+                alt="Product Image"
                 fill
                 className="rounded-full object-cover"
                 sizes="100px"
@@ -152,9 +156,9 @@ const CropsList = () => {
           );
         },
       },
+      { header: "Unit", accessorKey: "unit" },
+      { header: "Price", accessorKey: "price", cell: ({ getValue }) => `₹ ${getValue()}` },
       { header: "Category", accessorKey: "category" },
-      { header: "Variety", accessorKey: "variety" },
-      { header: "Season", accessorKey: "season" },
       {
         header: "Status",
         accessorKey: "isActive",
@@ -170,31 +174,31 @@ const CropsList = () => {
     []
   );
 
-  const renderActions = (crop) => (
+  const renderActions = (product) => (
     <div className="flex gap-2">
       <Link
-        href={`/admin/view-crops?id=${crop._id}`}
+        href={`/admin/view-products?id=${product._id}`}
         className="text-blue-600 hover:text-blue-800"
         title="Preview"
       >
         <Eye size={16} />
       </Link>
       <Link
-        href={`/admin/edit-crops?id=${crop._id}`}
+        href={`/admin/edit-products?id=${product._id}`}
         className="text-yellow-600 hover:text-yellow-800"
         title="Edit"
       >
         <Edit size={16} />
       </Link>
       <button
-        onClick={() => openToggleModal(crop)}
+        onClick={() => openToggleModal(product)}
         className="text-green-600 hover:text-green-800 cursor-pointer"
-        title={crop.isActive ? "Inactive" : "Active"}
+        title={product.isActive ? "Inactive" : "Active"}
       >
-        {crop.isActive ? <LucideToggleRight size={16} /> : <LucideToggleLeft size={16} />}
+        {product.isActive ? <LucideToggleRight size={16} /> : <LucideToggleLeft size={16} />}
       </button>
       <button
-        onClick={() => openDeleteModal(crop._id)}
+          onClick={() => openDeleteModal(product._id)}
         className="text-red-600 hover:text-red-800 cursor-pointer"
         title="Delete"
       >
@@ -224,14 +228,14 @@ const CropsList = () => {
           </div>
 
           {/* Add Button */}
-          <Link href="/admin/add-crops">
+          <Link href="/admin/add-products">
             <Button
               variant="default"
               size="sm"
               className="gap-2"
             >
               <IconPlus size={16} />
-              <span className="hidden sm:inline">Add Crop</span>
+              <span className="hidden sm:inline">Add Product</span>
             </Button>
           </Link>
         </div>
@@ -239,7 +243,7 @@ const CropsList = () => {
         {/* Table */}
         <DataTable
           columns={columns}
-          data={crops}
+          data={products}
           renderActions={renderActions}
           currentPage={currentPage}
           limit={limit}
@@ -270,21 +274,21 @@ const CropsList = () => {
         }
         title={
           modalType === 'delete' ? 'Confirm Deletion' :
-          modalType === 'toggle' && selectedCrop ? (selectedCrop.isActive ? 'Disable Crop' : 'Enable Crop') :
+          modalType === 'toggle' && selectedProduct ? (selectedProduct.isActive ? 'Disable Product' : 'Enable Product') :
           ''
         }
         description={
-          modalType === 'delete' ? 'Are you sure you want to delete this crop? This action cannot be undone.' :
-          modalType === 'toggle' && selectedCrop ? (
-            selectedCrop.isActive
-              ? 'Are you sure you want to disable this crop? You can enable it again later.'
-              : 'Are you sure you want to enable this crop?'
+          modalType === 'delete' ? 'Are you sure you want to delete this product? This action cannot be undone.' :
+          modalType === 'toggle' && selectedProduct ? (
+            selectedProduct.isActive
+              ? 'Are you sure you want to disable this product? You can enable it again later.'
+              : 'Are you sure you want to enable this product?'
           ) :
           ''
         }
         confirmButtonText={
           modalType === 'delete' ? 'Delete' :
-          modalType === 'toggle' && selectedCrop ? (selectedCrop.isActive ? 'Disable' : 'Enable') :
+          modalType === 'toggle' && selectedProduct ? (selectedProduct.isActive ? 'Disable' : 'Enable') :
           ''
         }
         confirmButtonVariant={modalType === 'delete' ? 'outline' : 'outline'}
@@ -293,4 +297,4 @@ const CropsList = () => {
   );
 };
 
-export default CropsList;
+export default ProductsList;

@@ -14,7 +14,10 @@ const AddCrop = ({ type }) => {
   const id = searchParams.get("id");
   const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
 
+  const imageRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+
   const [formData, setFormData] = useState({
     category: "",
     description: "",
@@ -25,30 +28,18 @@ const AddCrop = ({ type }) => {
     createdAt: "",
     updatedAt: "",
   });
+
   const [errors, setErrors] = useState({});
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) {
-      newErrors.name = "Name cannot be empty";
-    }
-    if (!formData.category.trim()) {
-      newErrors.category = "Category cannot be empty";
-    }
-    if (!formData.description.trim()) {
-      newErrors.description = "Description cannot be empty";
-    }
-    if (!formData.variety.trim()) {
-      newErrors.variety = "Variety cannot be empty";
-    }
-    if (!formData.season.trim()) {
-      newErrors.season = "Season cannot be empty";
-    }
-    if (formData.image) {
-      const maxSize = 2 * 1024 * 1024;
-      if (formData.image.size > maxSize) {
-        newErrors.image = "Image size should not exceed 2MB";
-      }
+    if (!formData.name.trim()) newErrors.name = "Name cannot be empty";
+    if (!formData.category.trim()) newErrors.category = "Category cannot be empty";
+    if (!formData.description.trim()) newErrors.description = "Description cannot be empty";
+    if (!formData.variety.trim()) newErrors.variety = "Variety cannot be empty";
+    if (!formData.season.trim()) newErrors.season = "Season cannot be empty";
+    if (formData.image && formData.image.size > 2 * 1024 * 1024) {
+      newErrors.image = "Image size should not exceed 2MB";
     }
     return newErrors;
   };
@@ -59,71 +50,59 @@ const AddCrop = ({ type }) => {
       ...prev,
       [name]: value,
     }));
-
-    // Clear error for the field being edited
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-  const imageRef = useRef(null);
+
   const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     const maxSize = 2 * 1024 * 1024;
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > maxSize) {
-        imageRef.current.value = "";
-        setErrors((prev) => ({
-          ...prev,
-          image: "Image size should not exceed 2MB",
-        }));
-        setFormData({
-          ...formData,
-          image: null,
-        });
-        return;
-      }
-      if (!allowedTypes.includes(file.type)) {
-        imageRef.current.value = "";
-        setErrors((prev) => ({
-          ...prev,
-          image: "Only .jpg, .jpeg, .png, or .webp files are allowed",
-        }));
-        setFormData({
-          ...formData,
-          image: null,
-        });
-        return;
-      }
-      setFormData({
-        ...formData,
-        image: file,
-      });
-      setErrors((prev) => ({
-        ...prev,
-        image: "",
-      }));
-    } else {
-      setFormData({
-        ...formData,
-        image: null,
-      });
-      setErrors((prev) => ({
-        ...prev,
-        image: "",
-      }));
+
+    if (!file) {
+      setFormData((prev) => ({ ...prev, image: null }));
+      setErrors((prev) => ({ ...prev, image: "" }));
+      setPreviewUrl(null);
+      return;
     }
+
+    if (!allowedTypes.includes(file.type)) {
+      imageRef.current.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: "Only .jpg, .jpeg, .png, or .webp files are allowed",
+      }));
+      setFormData((prev) => ({ ...prev, image: null }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (file.size > maxSize) {
+      imageRef.current.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: "Image size should not exceed 2MB",
+      }));
+      setFormData((prev) => ({ ...prev, image: null }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    setFormData((prev) => ({ ...prev, image: file }));
+    setErrors((prev) => ({ ...prev, image: "" }));
   };
 
   const handleImageDelete = () => {
     imageRef.current.value = "";
-    setFormData({
-      ...formData,
-      image: null,
-    });
-    setErrors((prev) => ({
-      ...prev,
-      image: "",
-    }));
+    setFormData((prev) => ({ ...prev, image: null }));
+    setErrors((prev) => ({ ...prev, image: "" }));
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
   };
+
   const getCrop = async (id) => {
     try {
       const response = await instance.get(`/crop-master/${id}`);
@@ -135,10 +114,11 @@ const AddCrop = ({ type }) => {
           name: crop.name || "",
           variety: crop.variety || "",
           season: crop.season || "",
-          image: crop?.image || null,
+          image: crop.image || null,
           createdAt: crop.createdAt || "",
           updatedAt: crop.updatedAt || "",
         });
+        setPreviewUrl(null); // no preview for existing image
       }
     } catch (error) {
       showError(error?.response?.data?.message || "Failed to fetch crop");
@@ -149,24 +129,26 @@ const AddCrop = ({ type }) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
+      showWarning("Please fill all the required fields");
       setErrors(validationErrors);
       return;
     }
     setErrors({});
     setIsSubmitting(true);
+
     try {
       const formDataToSend = new FormData();
-
       Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && typeof value === "string") return;
         formDataToSend.append(key, value);
       });
+
       const response = await instance.post("/crop-master/", formDataToSend);
-      if (response?.status === 201) {
+      if (response?.status === 200) {
         showSuccess(response?.data?.message || "Crop added successfully");
-        router.push("/admin/crops-list"); 
+        router.push("/admin/crops-list");
       }
     } catch (error) {
-      console.log(error);
       const backendErrors = error?.response?.data?.error?.errors;
       if (backendErrors && Array.isArray(backendErrors)) {
         const newErrors = {};
@@ -189,22 +171,20 @@ const AddCrop = ({ type }) => {
     }
     setErrors({});
     setIsSubmitting(true);
+
     try {
       const formDataToSend = new FormData();
-
       Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && typeof value === "string") return;
         formDataToSend.append(key, value);
       });
-      if (formDataToSend.image === "null") {
-        delete formDataToSend.image;
-      }
+
       const response = await instance.put(`/crop-master/${id}`, formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Crop updated successfully");
         router.push("/admin/crops-list");
       }
     } catch (error) {
-      console.log(error);
       const backendErrors = error?.response?.data?.error?.errors;
       if (backendErrors && Array.isArray(backendErrors)) {
         const newErrors = {};
@@ -212,8 +192,6 @@ const AddCrop = ({ type }) => {
           newErrors[err.field] = err.message;
         });
         setErrors(newErrors);
-      } else {
-        showError(error?.response?.data?.message || "Update failed");
       }
     } finally {
       setIsSubmitting(false);
@@ -225,6 +203,14 @@ const AddCrop = ({ type }) => {
       getCrop(id);
     }
   }, [id, type]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   return (
     <div className="p-4 flex flex-col gap-6">
@@ -290,22 +276,22 @@ const AddCrop = ({ type }) => {
               )}
             </div>
 
-            {/* Description*/}
-            <div>
+            {/* Description */}
+            <div className="sm:col-span-2">
               <label
                 htmlFor="description"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
                 Description *
               </label>
-              <input
-                type="text"
+              <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 disabled={type === "View"}
-                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
-                placeholder="Description"
+                placeholder="Enter a detailed crop description..."
+                rows={4}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-y"
               />
               {errors.description && (
                 <p className="text-red-500 text-xs mt-1">
@@ -358,14 +344,9 @@ const AddCrop = ({ type }) => {
               )}
             </div>
 
-            {/* Image */}
-
-            {/* Image */}
+            {/* Image Upload */}
             <div>
-              <label
-                htmlFor="image"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
                 Image
               </label>
               <input
@@ -379,21 +360,31 @@ const AddCrop = ({ type }) => {
               />
               {formData.image && formData.image !== "null" && (
                 <>
-                  <Image
-                    src={`${FileUrl}${formData?.image?.replace(/\\/g, "/")}`}
-                    alt="Selected"
-                    width={128}
-                    height={128}
-                    className="mt-2 h-32 w-32 object-cover rounded"
-                  />
+                  {typeof formData.image === "string" ? (
+                    <Image
+                      src={`${FileUrl}${formData.image.replace(/\\/g, "/")}`}
+                      alt="Crop"
+                      width={128}
+                      height={128}
+                      className="mt-2 h-32 w-32 object-cover rounded"
+                    />
+                  ) : (
+                    previewUrl && (
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        width={128}
+                        height={128}
+                        className="mt-2 h-32 w-32 object-cover rounded"
+                      />
+                    )
+                  )}
                   {type !== "View" && (
                     <Button
                       type="button"
                       variant="destructive"
                       className="mt-2 px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
-                      onClick={() => {
-                        handleImageDelete();
-                      }}
+                      onClick={handleImageDelete}
                     >
                       Remove
                     </Button>
@@ -404,55 +395,8 @@ const AddCrop = ({ type }) => {
                 <p className="text-red-500 text-xs mt-1">{errors.image}</p>
               )}
             </div>
-
-            {/* Created At (View Mode Only) */}
-            {type === "View" && (
-              <div className="sm:col-span-1">
-                <label
-                  htmlFor="createdAt"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
-                >
-                  Created At
-                </label>
-                <input
-                  type="text"
-                  name="createdAt"
-                  value={
-                    formData.createdAt
-                      ? new Date(formData.createdAt).toLocaleString()
-                      : ""
-                  }
-                  disabled
-                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
-                />
-              </div>
-            )}
-
-            {/* Updated At (View Mode Only) */}
-            {type === "View" && (
-              <div className="sm:col-span-1">
-                <label
-                  htmlFor="updatedAt"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
-                >
-                  Updated At
-                </label>
-                <input
-                  type="text"
-                  name="updatedAt"
-                  value={
-                    formData.updatedAt
-                      ? new Date(formData.updatedAt).toLocaleString()
-                      : ""
-                  }
-                  disabled
-                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
-                />
-              </div>
-            )}
           </div>
 
-          {/* Submit Button (Hidden in View Mode) */}
           {type !== "View" && (
             <div className="flex justify-end mt-4">
               <Button

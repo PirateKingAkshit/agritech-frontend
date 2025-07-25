@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   IconInnerShadowTop,
 } from "@tabler/icons-react";
-import { LucideVegan, LucideUser,LucideLayoutDashboard } from "lucide-react";
+import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideShoppingBag } from "lucide-react";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
@@ -35,6 +35,11 @@ const data = {
       title: "Crop Master",
       url: "/admin/crops-list",
       icon: LucideVegan,
+    },
+    {
+      title: "Product Master",
+      url: "/admin/products-list",
+      icon: LucideShoppingBag,
     },
   ],
 };

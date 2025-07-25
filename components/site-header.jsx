@@ -13,6 +13,7 @@ export function SiteHeader() {
     { title: "Dashboard", paths: ["/admin/dashboard"] },
     { title: "Users Master", paths: ["/admin/users-list", "/admin/add-user", "/admin/edit-user", "/admin/view-user"] },
     { title: "Crops Master", paths: ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"] },
+    { title: "Products Master", paths: ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"] },
   ];
   
   const getTitle = () =>

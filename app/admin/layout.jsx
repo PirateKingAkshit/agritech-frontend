@@ -1,17 +1,13 @@
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
-import { DataTable } from "@/components/data-table";
-import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { GalleryVerticalEnd } from "lucide-react";
-import Link from "next/link";
+
 
 export default function RootLayout({ children }) {
   return (
     <SidebarProvider
       style={{
-        "--sidebar-width": "calc(var(--spacing) * 72)",
+        "--sidebar-width": "calc(var(--spacing) * 52)",
         "--header-height": "calc(var(--spacing) * 12)",
       }}
     >
