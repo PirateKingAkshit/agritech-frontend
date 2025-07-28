@@ -7,13 +7,13 @@ import { usePathname } from "next/navigation";
 
 export function SiteHeader() {
   const pathname = usePathname();
-  console.log(pathname);
 
   const routes = [
     { title: "Dashboard", paths: ["/admin/dashboard"] },
     { title: "Users Master", paths: ["/admin/users-list", "/admin/add-user", "/admin/edit-user", "/admin/view-user"] },
     { title: "Crops Master", paths: ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"] },
     { title: "Products Master", paths: ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"] },
+    { title: "Govt Schemes Master", paths: ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"] },
   ];
   
   const getTitle = () =>

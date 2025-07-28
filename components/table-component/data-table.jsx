@@ -14,6 +14,7 @@ const DataTable = ({ columns, data, renderActions, currentPage, limit }) => {
     id: "serialNumber",
     header: "S.No.",
     cell: (info) => (currentPage - 1) * limit + info.row.index + 1,
+    enableSorting: false, // Disable sorting for this column
   };
 
   const allColumns = [serialNumberColumn, ...columns];
@@ -37,17 +38,27 @@ const DataTable = ({ columns, data, renderActions, currentPage, limit }) => {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    onClick={header.column.getToggleSortingHandler()}
-                    className="px-4 py-3 font-medium uppercase tracking-wide cursor-pointer select-none"
+                    onClick={
+                      header.column.getCanSort()
+                        ? header.column.getToggleSortingHandler()
+                        : undefined
+                    }
+                    className={`px-4 py-3 font-medium uppercase tracking-wide ${
+                      header.column.getCanSort()
+                        ? "cursor-pointer select-none"
+                        : "cursor-default"
+                    }`}
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
-                    <span className="ml-1">
-                      {header.column.getIsSorted() === "asc"
-                        ? "▲"
-                        : header.column.getIsSorted() === "desc"
-                        ? "▼"
-                        : ""}
-                    </span>
+                    {header.column.getCanSort() && (
+                      <span className="ml-1">
+                        {header.column.getIsSorted() === "asc"
+                          ? "▲"
+                          : header.column.getIsSorted() === "desc"
+                          ? "▼"
+                          : ""}
+                      </span>
+                    )}
                   </th>
                 ))}
                 {renderActions && (
