@@ -23,6 +23,7 @@ export function NavMain({ items }) {
     "/admin/crops-list": ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"],
     "/admin/products-list": ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"],
     "/admin/list-schemes": ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"],
+    "/admin/media-master": ["/admin/media-master"],
   };
   
   const getUrl = (url) => {

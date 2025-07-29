@@ -14,6 +14,7 @@ export function SiteHeader() {
     { title: "Crops Master", paths: ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"] },
     { title: "Products Master", paths: ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"] },
     { title: "Govt Schemes Master", paths: ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"] },
+    { title: "Media Master", paths: ["/admin/media-master"] },
   ];
   
   const getTitle = () =>
