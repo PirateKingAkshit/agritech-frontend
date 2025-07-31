@@ -32,7 +32,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
       return (
         <div className="flex justify-center items-center">
           <Image
-            src={file.url.replace("\\","/")}
+            src={file.url}
             alt={file.name}
             className="max-w-full max-h-[80vh] object-contain rounded-lg"
             width={1000}
@@ -43,7 +43,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
     } else if (isVideo) {
       return (
         <video
-          src={file.url.replace("\\","/")}
+          src={file.url}
           controls
           className="max-w-full max-h-[80vh] rounded-lg"
           width={1000}
@@ -59,7 +59,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
             <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
           </div>
           <audio controls className="w-full max-w-md">
-            <source src={file.url.replace("\\","/")} type={file.format} />
+            <source src={file.url} type={file.format} />
             Your browser does not support the audio element.
           </audio>
         </div>
@@ -84,7 +84,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
           <div className="flex-shrink-0">
             {isImage ? (
               <Image
-                src={file.url.replace("\\","/")}
+                src={file.url}
                 alt={file.name}
                 className="w-12 h-12 object-cover rounded"
                 width={48}
@@ -149,7 +149,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
       <div className="aspect-square bg-gray-50 flex items-center justify-center">
         {isImage ? (
           <Image
-            src={file.url.replace("\\","/")}
+            src={file.url}
             alt={file.name}
             className="w-full h-full object-cover object-top"
             width={100}
