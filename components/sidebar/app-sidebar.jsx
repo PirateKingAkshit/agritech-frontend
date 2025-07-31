@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   IconInnerShadowTop,
 } from "@tabler/icons-react";
-import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideShoppingBag, LucideFile } from "lucide-react";
+import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideShoppingBag, LucideFile, LucideImage } from "lucide-react";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
@@ -45,6 +45,11 @@ const data = {
       title: "Govt Schemes Master",
       url: "/admin/list-schemes",
       icon: LucideFile,
+    },
+    {
+      title: "Media Master",
+      url: "/admin/media-master",
+      icon: LucideImage,
     }
   ],
 };
