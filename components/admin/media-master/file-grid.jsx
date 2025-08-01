@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { FolderOpen, SortDesc, ArrowUp, ArrowDown, Type, Calendar, Grid3X3, List } from 'lucide-react';
 import FileCard from './file-card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -38,7 +39,7 @@ export default function FileGrid({ files, onDelete, onDownload }) {
   if (files.length === 0) {
     return (
       <div className="text-center py-12">
-        <i className="ri-folder-open-line w-16 h-16 flex items-center justify-center text-gray-300 mx-auto mb-4"></i>
+        <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <p className="text-gray-500">No files uploaded yet</p>
       </div>
     );
@@ -55,18 +56,22 @@ export default function FileGrid({ files, onDelete, onDownload }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="whitespace-nowrap">
-                <i className="ri-sort-desc w-4 h-4 flex items-center justify-center mr-2"></i>
+                <SortDesc className="w-4 h-4 mr-2" />
                 Sort by {sortBy}
-                <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-s-line w-4 h-4 flex items-center justify-center ml-2`}></i>
+                {sortOrder === 'asc' ? (
+                  <ArrowUp className="w-4 h-4 ml-2" />
+                ) : (
+                  <ArrowDown className="w-4 h-4 ml-2" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => handleSort('name')}>
-                <i className="ri-font-size w-4 h-4 flex items-center justify-center mr-2"></i>
+                <Type className="w-4 h-4 mr-2" />
                 Name
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleSort('date')}>
-                <i className="ri-calendar-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                <Calendar className="w-4 h-4 mr-2" />
                 Date
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -79,7 +84,7 @@ export default function FileGrid({ files, onDelete, onDownload }) {
               onClick={() => setViewType('grid')}
               className="whitespace-nowrap rounded-r-none"
             >
-              <i className="ri-grid-line w-4 h-4 flex items-center justify-center"></i>
+              <Grid3X3 className="w-4 h-4" />
             </Button>
             <Button
               variant={viewType === 'list' ? 'default' : 'ghost'}
@@ -87,7 +92,7 @@ export default function FileGrid({ files, onDelete, onDownload }) {
               onClick={() => setViewType('list')}
               className="whitespace-nowrap rounded-l-none"
             >
-              <i className="ri-list-unordered w-4 h-4 flex items-center justify-center"></i>
+              <List className="w-4 h-4" />
             </Button>
           </div>
         </div>

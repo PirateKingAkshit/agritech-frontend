@@ -29,13 +29,13 @@ export default function FileManager() {
     { id: 'images', label: 'Images', icon: 'ri-image-line', acceptedTypes: 'image/*', apiType: 'image' },
     { id: 'audio', label: 'Audio', icon: 'ri-music-line', acceptedTypes: 'audio/*', apiType: 'audio' },
     { id: 'videos', label: 'Videos', icon: 'ri-video-line', acceptedTypes: 'video/*', apiType: 'video' },
-    {
-      id: 'documents',
-      label: 'Documents',
-      icon: 'ri-file-text-line',
-      acceptedTypes: '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt',
-      apiType: 'documents',
-    },
+    // {
+    //   id: 'documents',
+    //   label: 'Documents',
+    //   icon: 'ri-file-text-line',
+    //   acceptedTypes: '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt',
+    //   apiType: 'documents',
+    // },
   ];
 
   const fetchFiles = async (tabId, page = 1, limit = 10) => {
@@ -88,7 +88,7 @@ export default function FileManager() {
         await fetchFiles(tabType, pagination[tabType].currentPage, pagination[tabType].limit);
       }
     } catch (error) {
-      showError('Error uploading files: ' + (error.response?.data?.message || error.message));
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -134,10 +134,10 @@ export default function FileManager() {
         <p className="text-gray-600">Upload, organize, and manage your files</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-8">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">    
+        <TabsList className="grid w-full grid-cols-3 mb-8"> 
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.id} value={tab.id} className="flex items-center space-x-2">
+            <TabsTrigger key={tab.id} value={tab.id} className="flex items-center space-x-2 cursor-pointer">
               <i className={`${tab.icon} w-4 h-4 flex items-center justify-center`}></i>
               <span>{tab.label}</span>
             </TabsTrigger>
@@ -149,7 +149,7 @@ export default function FileManager() {
             <FileUpload
               onFileUpload={(newFiles) => handleFileUpload(tab.id, newFiles)}
               acceptedTypes={tab.acceptedTypes}
-              maxFiles={20}
+              maxFiles={10}
               disabled={isLoading}
             />
             {isLoading ? (

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Music, Eye, MoreVertical, Download, Trash2, PlayCircle } from 'lucide-react';
 import { formatFileSize, formatDate, getFileIcon } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -53,7 +54,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
     } else if (isAudio) {
       return (
         <div className="flex flex-col items-center space-y-4 p-8">
-          <i className="ri-music-line w-16 h-16 flex items-center justify-center text-gray-400"></i>
+          <Music className="w-16 h-16 text-gray-400" />
           <div className="text-center">
             <p className="font-medium">{file.name}</p>
             <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
@@ -91,7 +92,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
                 height={48}
               />
             ) : isAudio ? (
-              <i className="ri-music-line w-12 h-12 flex items-center justify-center text-gray-400"></i>
+              <Music className="w-12 h-12 text-gray-400" />
             ) : (
               <i className={`${getFileIcon(file.name)} w-12 h-12 flex items-center justify-center text-gray-400`}></i>
             )}
@@ -109,7 +110,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
             <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="whitespace-nowrap cursor-pointer">
-                  <i className="ri-eye-line w-4 h-4 flex items-center justify-center mr-1"></i>
+                  <Eye className="w-4 h-4 mr-1" />
                   Preview
                 </Button>
               </DialogTrigger>
@@ -125,16 +126,16 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="whitespace-nowrap cursor-pointer">
-                <i className="ri-more-2-line w-4 h-4 flex items-center justify-center"></i>
+                <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleDownload} className="cursor-pointer">
-                <i className="ri-download-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                <Download className="w-4 h-4 mr-2" />
                 Download
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleDelete} className="text-red-600 cursor-pointer">
-                <i className="ri-delete-bin-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                <Trash2 className="w-4 h-4 mr-2" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -157,11 +158,11 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
             />
         ) : isVideo ? (
           <div className="relative w-full h-full bg-gray-100 flex items-center justify-center">
-            <i className="ri-play-circle-line w-12 h-12 flex items-center justify-center text-gray-400"></i>
+            <PlayCircle className="w-12 h-12 text-gray-400" />
           </div>
         ) : isAudio ? (
           <div className="relative w-full h-full bg-gray-100 flex items-center justify-center">
-            <i className="ri-music-line w-12 h-12 flex items-center justify-center text-gray-400"></i>
+            <Music className="w-12 h-12 text-gray-400" />
           </div>
         ) : (
           <i className={`${getFileIcon(file.name)} w-12 h-12 flex items-center justify-center text-gray-400`}></i>
@@ -179,7 +180,7 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
             <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="whitespace-nowrap cursor-pointer">
-                  <i className="ri-eye-line w-4 h-4 flex items-center justify-center mr-1"></i>
+                  <Eye className="w-4 h-4 mr-1" />
                   Preview
                 </Button>
               </DialogTrigger>
@@ -195,16 +196,16 @@ export default function FileCard({ file, onDelete, onDownload, viewType }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="whitespace-nowrap ml-auto cursor-pointer">
-                <i className="ri-more-2-line w-4 h-4 flex items-center justify-center"></i>
+                <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleDownload} className="cursor-pointer">
-                <i className="ri-download-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                <Download className="w-4 h-4 mr-2" />
                 Download
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleDelete} className="text-red-600 cursor-pointer">
-                <i className="ri-delete-bin-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                <Trash2 className="w-4 h-4 mr-2" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
