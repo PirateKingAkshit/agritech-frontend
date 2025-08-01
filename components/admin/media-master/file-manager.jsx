@@ -85,7 +85,7 @@ export default function FileManager() {
 
       if (response?.status === 200) {
         showSuccess('Files uploaded successfully');
-        await fetchFiles(tabType, pagination[tabType].currentPage, pagination[tabType].limit);
+        await fetchFiles(tabType, pagination[tabType].currentPage, pagination[tabType].limit); 
       }
     } catch (error) {
       console.log(error);
