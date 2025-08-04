@@ -24,6 +24,7 @@ export function NavMain({ items }) {
     "/admin/products-list": ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"],
     "/admin/list-schemes": ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"],
     "/admin/media-master": ["/admin/media-master"],
+    "/admin/tutorials-list": ["/admin/tutorials-list", "/admin/add-tutorial", "/admin/edit-tutorial", "/admin/view-tutorial"],
   };
   
   const getUrl = (url) => {

@@ -15,6 +15,7 @@ export function SiteHeader() {
     { title: "Products Master", paths: ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"] },
     { title: "Govt Schemes Master", paths: ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"] },
     { title: "Media Master", paths: ["/admin/media-master"] },
+    { title: "Tutorials Master", paths: ["/admin/tutorials-list", "/admin/add-tutorial", "/admin/edit-tutorial", "/admin/view-tutorial"] },
   ];
   
   const getTitle = () =>

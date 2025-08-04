@@ -131,6 +131,46 @@
   --sidebar-ring: var(--ring);
 }
 
+/* Agriculture-themed scrollbar — Light mode */
+::-webkit-scrollbar {
+  width: 14px;
+  background: var(--muted); /* Pale greenish */
+  border-radius: 7px;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--primary) 60%,
+    var(--secondary) 40%
+  ); /* Fresh leaf green and Ripe wheat */
+  border-radius: 7px;
+  border: 2px solid var(--sidebar);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--chart-3); /* Soil tint on hover */
+}
+
+/* Agriculture-themed scrollbar — Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--muted);
+}
+
+/* Dark mode overrides */
+.dark ::-webkit-scrollbar {
+  background: var(--muted); /* Darker green */
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--primary) 60%,
+    var(--secondary) 40%
+  );
+  border: 2px solid var(--sidebar);
+}
+.dark * {
+  scrollbar-color: var(--primary) var(--muted);
+}
 
 
 @layer base {
