@@ -124,8 +124,8 @@ const TutorialsList = () => {
     () => [
       { header: "Name", accessorKey: "name" },
       { header: "Language", accessorKey: "language", cell: ({ getValue }) => (
-        <Badge variant="default" className="bg-primary text-primary-foreground">
-          {getValue()}
+        <Badge variant="secondary">
+          {getValue().toUpperCase()}
         </Badge>
       ) },
       {
