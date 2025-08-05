@@ -81,11 +81,11 @@ export default function FileManager() {
 
       const response = await instance.post('/media-master', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      }); 
 
       if (response?.status === 200) {
         showSuccess('Files uploaded successfully');
-        await fetchFiles(tabType, pagination[tabType].currentPage, pagination[tabType].limit);
+        await fetchFiles(tabType, pagination[tabType].currentPage, pagination[tabType].limit); 
       }
     } catch (error) {
       console.log(error);

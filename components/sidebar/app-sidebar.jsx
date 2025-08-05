@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   IconInnerShadowTop,
 } from "@tabler/icons-react";
-import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideShoppingBag, LucideFile, LucideImage } from "lucide-react";
+import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideShoppingBag, LucideFile, LucideImage, LucideBook } from "lucide-react";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
@@ -50,6 +50,11 @@ const data = {
       title: "Media Master",
       url: "/admin/media-master",
       icon: LucideImage,
+    },
+    {
+      title: "Tutorials Master",
+      url: "/admin/tutorials-list",
+      icon: LucideBook,
     }
   ],
 };
