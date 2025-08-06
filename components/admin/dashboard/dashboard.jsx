@@ -4,10 +4,13 @@ import React from "react";
 const Dashboard = () => {
   return (
     <>
-      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <div className="p-4 flex flex-col gap-6">
+      <div className="bg-white dark:bg-background border shadow rounded-lg py-6">
+
         <SectionCards />
         <div className="px-4 lg:px-6">
         </div>
+      </div>
       </div>
     </>
   );

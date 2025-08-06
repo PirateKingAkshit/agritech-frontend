@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { showSuccess, showError } from "@/lib/toastUtils";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
@@ -28,16 +28,95 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Dynamically import React Quill to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+import Quill from "quill";
 import "react-quill-new/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+
+// Custom Quill Video Blot
+class VideoBlot extends Quill.import("blots/block/embed") {
+  static create(value) {
+    let node = super.create();
+    node.setAttribute("controls", "");
+    node.setAttribute("width", "100%");
+    node.setAttribute("style", "max-width: 100%; height: auto; display: block; margin: 0 auto;");
+    
+    let source = document.createElement("source");
+    source.setAttribute("src", value.url);
+    source.setAttribute("type", value.type || "video/mp4");
+    
+    node.appendChild(source);
+    return node;
+  }
+
+  static value(node) {
+    let source = node.querySelector("source");
+    return {
+      url: source ? source.getAttribute("src") : "",
+      type: source ? source.getAttribute("type") : "video/mp4",
+    };
+  }
+}
+VideoBlot.blotName = "video";
+VideoBlot.tagName = "video";
+Quill.register(VideoBlot);
+
+// Custom Quill Audio Blot
+class AudioBlot extends Quill.import("blots/block/embed") {
+  static create(value) {
+    let node = super.create();
+    node.setAttribute("controls", "");
+    node.setAttribute("style", "width: 100%; display: block; margin: 0 auto;");
+    
+    let source = document.createElement("source");
+    source.setAttribute("src", value.url);
+    source.setAttribute("type", value.type || "audio/mpeg");
+    
+    node.appendChild(source);
+    return node;
+  }
+
+  static value(node) {
+    let source = node.querySelector("source");
+    return {
+      url: source ? source.getAttribute("src") : "",
+      type: source ? source.getAttribute("type") : "audio/mpeg",
+    };
+  }
+}
+AudioBlot.blotName = "audio";
+AudioBlot.tagName = "audio";
+Quill.register(AudioBlot);
+
+// Custom Quill Iframe Blot
+class IframeBlot extends Quill.import("blots/block/embed") {
+  static create(value) {
+    let node = super.create();
+    node.setAttribute("src", value.url);
+    node.setAttribute("frameborder", "0");
+    node.setAttribute("allowfullscreen", "");
+    node.setAttribute("width", "100%");
+    node.setAttribute("height", "315");
+    node.setAttribute("style", "max-width: 100%; display: block; margin: 0 auto;");
+    return node;
+  }
+
+  static value(node) {
+    return {
+      url: node.getAttribute("src"),
+    };
+  }
+}
+IframeBlot.blotName = "iframe";
+IframeBlot.tagName = "iframe";
+Quill.register(IframeBlot);
 
 const AddTutorial = ({ type }) => {
   const instance = axiosInstance();
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const quillRef = useRef(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -52,14 +131,11 @@ const AddTutorial = ({ type }) => {
   const [mediaError, setMediaError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedMediaType, setSelectedMediaType] = useState("image"); // Default to image
-  const limit = 10; // Number of media items per page
+  const [selectedMediaType, setSelectedMediaType] = useState("image");
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
-const [embedUrl, setEmbedUrl] = useState("");
-const [embedError, setEmbedError] = useState("");
+  const [embedUrl, setEmbedUrl] = useState("");
+  const [embedError, setEmbedError] = useState("");
 
-
-  // Predefined list of languages for the dropdown
   const languages = [
     { value: "eng", label: "English" },
     { value: "hin", label: "Hindi" },
@@ -68,14 +144,12 @@ const [embedError, setEmbedError] = useState("");
     { value: "tel", label: "Telugu" },
   ];
 
-  // Media types for the dropdown
   const mediaTypes = [
     { value: "image", label: "Image" },
     { value: "video", label: "Video" },
     { value: "audio", label: "Audio" },
   ];
 
-  // React Quill modules and formats with custom media button
   const quillModules = {
     toolbar: {
       container: [
@@ -84,8 +158,50 @@ const [embedError, setEmbedError] = useState("");
         [{ list: "ordered" }, { list: "bullet" }],
         ["clean"],
         [{ align: [] }],
+        ["image", "video", "iframe"],
       ],
-     
+      handlers: {
+        iframe: function () {
+          if (quillRef.current) {
+            setEmbedUrl("");
+            setEmbedError("");
+            setIsEmbedModalOpen(true);
+            quillRef.current.getEditor().focus(); // Ensure editor is focused
+          }
+        },
+      },
+    },
+    keyboard: {
+      bindings: {
+        // Handle Enter key after video/audio/iframe embeds
+        enter: {
+          key: 13, // Enter key
+          handler: function (range, context) {
+            if (context && (context.format.video || context.format.audio || context.format.iframe)) {
+              const index = range.index + 1;
+              this.quill.insertText(index, "\n", "user");
+              this.quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
+              this.quill.setSelection(index + 2, Quill.sources.SILENT);
+              return false;
+            }
+            return true;
+          },
+        },
+        // Handle down arrow to move past embeds
+        down: {
+          key: 40, // Down arrow
+          handler: function (range, context) {
+            if (context && (context.format.video || context.format.audio || context.format.iframe)) {
+              const index = range.index + 1;
+              this.quill.insertText(index, "\n", "user");
+              this.quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
+              this.quill.setSelection(index + 2, Quill.sources.SILENT);
+              return false;
+            }
+            return true;
+          },
+        },
+      },
     },
   };
   const quillFormats = [
@@ -99,7 +215,25 @@ const [embedError, setEmbedError] = useState("");
     "align",
     "image",
     "video",
+    "audio",
+    "iframe",
+    "block",
   ];
+
+  const handleEditorClick = (e) => {
+    if (!quillRef.current) return;
+    const quill = quillRef.current.getEditor();
+    const range = quill.getSelection(true);
+    if (range) {
+      const [leaf] = quill.getLeaf(range.index);
+      if (leaf && (leaf.blot instanceof VideoBlot || leaf.blot instanceof AudioBlot || leaf.blot instanceof IframeBlot)) {
+        const index = range.index + 1;
+        quill.insertText(index, "\n", "user");
+        quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
+        quill.setSelection(index + 2, Quill.sources.SILENT);
+      }
+    }
+  };
 
   const validate = () => {
     const newErrors = {};
@@ -129,6 +263,78 @@ const [embedError, setEmbedError] = useState("");
     setErrors((prev) => ({ ...prev, description: "" }));
   };
 
+  const handleEmbedMedia = async (media) => {
+    try {
+      const response = await fetch(media.url, { method: "HEAD" });
+      if (!response.ok) {
+        showError(`Media URL is inaccessible: ${media.url}`);
+        return;
+      }
+    } catch (error) {
+      showError(`Failed to validate media URL: ${media.url}`);
+      return;
+    }
+
+    const quill = quillRef.current?.getEditor();
+    quill.focus(); // Ensure editor is focused
+    let range = quill.getSelection(true);
+    if (!quill || range === null) {
+      showError("Editor is not ready. Please try again.");
+      // Fallback: insert at the end of the content
+      range = { index: quill.getLength() };
+    }
+
+    switch (media.type) {
+      case "image":
+        quill.insertEmbed(range.index, "image", media.url, "user");
+        break;
+      case "video":
+        quill.insertEmbed(range.index, "video", {
+          url: media.url,
+          type: media.format || "video/mp4",
+        }, "user");
+        break;
+      case "audio":
+        quill.insertEmbed(range.index, "audio", {
+          url: media.url,
+          type: media.format || "audio/mpeg",
+        }, "user");
+        break;
+      default:
+        return;
+    }
+
+    quill.insertText(range.index + 1, "\n", "user");
+    quill.insertEmbed(range.index + 2, "block", "<p><br></p>", "user");
+    quill.setSelection(range.index + 3, Quill.sources.SILENT);
+    setIsMediaModalOpen(false);
+  };
+
+  const handleEmbedUrl = () => {
+    if (!embedUrl || !/^https?:\/\/.+/.test(embedUrl)) {
+      setEmbedError("Please enter a valid URL.");
+      return;
+    }
+
+    const quill = quillRef.current?.getEditor();
+    quill.focus(); // Ensure editor is focused
+    let range = quill.getSelection(true);
+    if (!quill || range === null) {
+      showError("Editor is not ready. Please try again.");
+      // Fallback: insert at the end of the content
+      range = { index: quill.getLength() };
+    }
+
+    quill.insertEmbed(range.index, "iframe", { url: embedUrl }, "user");
+    quill.insertText(range.index + 1, "\n", "user");
+    quill.insertEmbed(range.index + 2, "block", "<p><br></p>", "user");
+    quill.setSelection(range.index + 3, Quill.sources.SILENT);
+
+    setIsEmbedModalOpen(false);
+    setEmbedUrl("");
+    setEmbedError("");
+  };
+
   const getTutorial = async (id) => {
     try {
       const response = await instance.get(`/tutorial-master/${id}`);
@@ -150,7 +356,7 @@ const [embedError, setEmbedError] = useState("");
     setMediaError(null);
     try {
       const response = await instance.get(`/media-master`, {
-        params: { page, limit, type: selectedMediaType }, // Fetch only selected media type
+        params: { page, limit: 10, type: selectedMediaType },
       });
       setMediaItems(response.data.data || []);
       setTotalPages(response.data.pagination?.totalPages || 1);
@@ -162,50 +368,9 @@ const [embedError, setEmbedError] = useState("");
     }
   };
 
-  const handleEmbedMedia = (media) => {
-    console.log(media)
-    let htmlContent = "";
-    switch (media.type) {
-      case "image":
-        htmlContent = `<img src="${media.url}" alt="${media.name}" style="max-width: 100%; height: auto;" />`;
-        break;
-      case "video":
-        htmlContent = `<iframe
-  width="100%"
-  height="315"
-  src="${media.url}"
-  title="YouTube video"
-  frameBorder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowFullScreen
-></iframe>
-`;
-        break;
-      case "audio":
-        htmlContent = `<iframe
-  width="100%"
-  height="315"
-  src="${media.url}"
-  title="YouTube video"
-  frameBorder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowFullScreen
-></iframe>
-`;
-        break;
-      default:
-        return;
-    }
-    setFormData((prev) => ({
-      ...prev,
-      description: prev.description + htmlContent,
-    }));
-    setIsMediaModalOpen(false);
-  };
-
   const handleMediaTypeChange = (value) => {
     setSelectedMediaType(value);
-    setCurrentPage(1); // Reset to first page when type changes
+    setCurrentPage(1);
   };
 
   const handleSubmit = async (e) => {
@@ -308,7 +473,6 @@ const [embedError, setEmbedError] = useState("");
 
         <form onSubmit={type === "Edit" ? handleUpdate : handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-            {/* Name */}
             <div>
               <label
                 htmlFor="name"
@@ -330,7 +494,6 @@ const [embedError, setEmbedError] = useState("");
               )}
             </div>
 
-            {/* Language Dropdown */}
             <div>
               <label
                 htmlFor="language"
@@ -359,58 +522,64 @@ const [embedError, setEmbedError] = useState("");
               )}
             </div>
 
-            {/* Description */}
-<div className="sm:col-span-2">
-  <label
-    htmlFor="description"
-    className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
-  >
-    Description *
-  </label>
-
-  {type !== "View" && (
-    <div className="flex justify-end mb-2">
-      <div className="flex gap-2">
-  <Button
-    type="button"
-    variant="secondary"
-    size="sm"
-    onClick={() => setIsMediaModalOpen(true)}
-  >
-    Insert Media
-  </Button>
-  <Button
-    type="button"
-    variant="secondary"
-    size="sm"
-    onClick={() => {
-      setEmbedUrl("");
-      setEmbedError("");
-      setIsEmbedModalOpen(true);
-    }}
-  >
-    Embed URL
-  </Button>
-</div>
-
-    </div>
-  )}
-
-  <ReactQuill
-    value={formData.description}
-    onChange={handleDescriptionChange}
-    readOnly={type === "View"}
-    modules={quillModules}
-    formats={quillFormats}
-    className="bg-background dark:text-gray-200"
-    placeholder="Enter a detailed tutorial description..."
-  />
-
-  {errors.description && (
-    <p className="text-red-500 text-xs mt-1">{errors.description}</p>
-  )}
-</div>
-
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="description"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Description *
+              </label>
+              {type === "View" ? (
+                <div
+                  className="ql-editor border border-border rounded p-2 bg-background dark:text-gray-200"
+                  style={{ minHeight: "200px" }}
+                  dangerouslySetInnerHTML={{ __html: formData.description }}
+                />
+              ) : (
+                <>
+                  <div className="flex justify-end mb-2">
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setIsMediaModalOpen(true)}
+                      >
+                        Insert Media
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          setEmbedUrl("");
+                          setEmbedError("");
+                          setIsEmbedModalOpen(true);
+                          if (quillRef.current) {
+                            quillRef.current.getEditor().focus();
+                          }
+                        }}
+                      >
+                        Embed URL
+                      </Button>
+                    </div>
+                  </div>
+                  <ReactQuill
+                    ref={quillRef}
+                    value={formData.description}
+                    onChange={handleDescriptionChange}
+                    modules={quillModules}
+                    formats={quillFormats}
+                    className="bg-background dark:text-gray-200"
+                    placeholder="Enter a detailed tutorial description..."
+                    onClick={handleEditorClick}
+                  />
+                </>
+              )}
+              {errors.description && (
+                <p className="text-red-500 text-xs mt-1">{errors.description}</p>
+              )}
+            </div>
           </div>
 
           {type !== "View" && (
@@ -432,7 +601,6 @@ const [embedError, setEmbedError] = useState("");
         </form>
       </div>
 
-      {/* Media Selection Modal */}
       <Dialog open={isMediaModalOpen} onOpenChange={setIsMediaModalOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -466,40 +634,40 @@ const [embedError, setEmbedError] = useState("");
             <p className="text-red-500 text-center">{mediaError}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
-  {mediaItems.map((media) => (
-    <div
-      key={media._id}
-      className="border rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-      onClick={() => handleEmbedMedia(media)}
-    >
-      {media.type === "image" && (
-        <img
-          src={media.url}
-          alt={media.name}
-          className="w-full h-32 object-cover rounded"
-        />
-      )}
-      {media.type === "video" && (
-        <video
-          src={media.url}
-          className="w-full h-32 object-cover rounded"
-          controls
-          muted
-        />
-      )}
-      {media.type === "audio" && (
-        <div className="flex items-center justify-center h-32 bg-gray-200 dark:bg-gray-700 rounded">
-          <audio controls className="w-full">
-            <source src={media.url} type={media.format} />
-            Your browser does not support the audio tag.
-          </audio>
-        </div>
-      )}
-      <p className="text-sm mt-2 truncate">{media.name}</p>
-      <p className="text-xs text-gray-500">{media.type}</p>
-    </div>
-  ))}
-</div>
+              {mediaItems.map((media) => (
+                <div
+                  key={media._id}
+                  className="border rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                  onClick={() => handleEmbedMedia(media)}
+                >
+                  {media.type === "image" && (
+                    <img
+                      src={media.url}
+                      alt={media.name}
+                      className="w-full h-32 object-cover rounded"
+                    />
+                  )}
+                  {media.type === "video" && (
+                    <video
+                      src={media.url}
+                      className="w-full h-32 object-cover rounded"
+                      controls
+                      muted
+                    />
+                  )}
+                  {media.type === "audio" && (
+                    <div className="flex items-center justify-center h-32 bg-gray-200 dark:bg-gray-700 rounded">
+                      <audio controls className="w-full">
+                        <source src={media.url} type={media.format} />
+                        Your browser does not support the audio tag.
+                      </audio>
+                    </div>
+                  )}
+                  <p className="text-sm mt-2 truncate">{media.name}</p>
+                  <p className="text-xs text-gray-500">{media.type}</p>
+                </div>
+              ))}
+            </div>
           )}
           {!mediaLoading && !mediaError && mediaItems.length === 0 && (
             <p className="text-center text-gray-500">No {selectedMediaType} found</p>
@@ -534,50 +702,35 @@ const [embedError, setEmbedError] = useState("");
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <Dialog open={isEmbedModalOpen} onOpenChange={setIsEmbedModalOpen}>
-  <DialogContent className="sm:max-w-md">
-    <DialogHeader>
-      <DialogTitle>Embed URL</DialogTitle>
-    </DialogHeader>
-    <div className="flex flex-col gap-2 mt-2">
-      <label className="text-sm font-medium">URL *</label>
-      <input
-        type="url"
-        className="border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
-        value={embedUrl}
-        onChange={(e) => {
-          setEmbedUrl(e.target.value);
-          setEmbedError("");
-        }}
-        placeholder="https://www.youtube.com/embed/..."
-      />
-      {embedError && (
-        <p className="text-red-500 text-xs">{embedError}</p>
-      )}
-    </div>
-    <DialogFooter className="mt-4">
-      <Button
-        type="button"
-        onClick={() => {
-          if (!embedUrl || !/^https?:\/\/.+/.test(embedUrl)) {
-            setEmbedError("Please enter a valid URL.");
-            return;
-          }
-
-          const embedCode = `<iframe width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
-          setFormData((prev) => ({
-            ...prev,
-            description: prev.description + embedCode,
-          }));
-          setIsEmbedModalOpen(false);
-        }}
-      >
-        Embed
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Embed URL</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 mt-2">
+            <label className="text-sm font-medium">URL *</label>
+            <input
+              type="url"
+              className="border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+              value={embedUrl}
+              onChange={(e) => {
+                setEmbedUrl(e.target.value);
+                setEmbedError("");
+              }}
+              placeholder="https://www.youtube.com/embed/..."
+            />
+            {embedError && (
+              <p className="text-red-500 text-xs">{embedError}</p>
+            )}
+          </div>
+          <DialogFooter className="mt-4">
+            <Button type="button" onClick={handleEmbedUrl}>
+              Embed
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

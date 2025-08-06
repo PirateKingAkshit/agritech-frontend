@@ -37,11 +37,11 @@ export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter()
   const handleLogout = () => {
-    deleteCookie('token')
-    deleteCookie('user')
+    deleteCookie('agritech_token')
+    deleteCookie('agritech_user')
     router.push('/login')
   }
-  const user = hasCookie('user') ? JSONParse(getCookie('user')) : null
+  const user = hasCookie('agritech_user') ? JSONParse(getCookie('agritech_user')) : null
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -84,12 +84,8 @@ export function NavUser() {
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+            {/* <DropdownMenuSeparator /> */}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Profile
-              </DropdownMenuItem>
               {/* <DropdownMenuItem onClick={toggleTheme}>
                 {theme === "dark" ? <Sun /> : <Moon />}
                 {theme === "dark" ? "Light Mode" : "Dark Mode"}
