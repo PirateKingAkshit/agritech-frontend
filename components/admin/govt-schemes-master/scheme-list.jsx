@@ -253,7 +253,7 @@ const SchemesList = () => {
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Search by name, language, or scheme ID"
-              className="w-full border border-border rounded px-3 py-2 text-sm bg-background"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
             />
             <Button onClick={handleSearch} variant="default" size="sm">
               Search
