@@ -70,8 +70,8 @@ export function AppSidebar({ ...props }) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href="/admin/dashboard">
-                <LucideVegan className="!size-5" />
-                <span className="text-base font-semibold">AgriTech</span>
+                <LucideVegan color="green" className="!size-5" />
+                <span className="text-base font-semibold text-green-700">AgriTech</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
