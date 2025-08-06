@@ -84,13 +84,13 @@ export function NavUser() {
                 </div>
               </div>
             </DropdownMenuLabel>
-            {/* <DropdownMenuSeparator /> */}
+            {/* <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {/* <DropdownMenuItem onClick={toggleTheme}>
+              <DropdownMenuItem onClick={toggleTheme}>
                 {theme === "dark" ? <Sun /> : <Moon />}
                 {theme === "dark" ? "Light Mode" : "Dark Mode"}
-              </DropdownMenuItem> */}
-            </DropdownMenuGroup>
+              </DropdownMenuItem>
+            </DropdownMenuGroup> */}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <IconLogout />
