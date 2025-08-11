@@ -16,12 +16,13 @@ const TutorialsList = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPage = Number(searchParams.get("page")) || 1;
+  const initialLimit = Number(searchParams.get("limit")) || 10;
 
   const instance = axiosInstance();
   const [tutorials, setTutorials] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(initialLimit);
   const [searchText, setSearchText] = useState("");
 
   const [modalType, setModalType] = useState(null); // 'delete' | 'toggle'
@@ -58,7 +59,7 @@ const TutorialsList = () => {
 
   const handleSearch = () => {
     setCurrentPage(1);
-    router.push(`?page=1`);
+    router.push(`?page=1&limit=${limit}`);
     fetchTutorials();
   };
 
@@ -116,7 +117,7 @@ const TutorialsList = () => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      router.push(`?page=${page}`);
+      router.push(`?page=${page}&limit=${limit}`);
     }
   };
 
@@ -226,7 +227,7 @@ const TutorialsList = () => {
           onLimitChange={(newLimit) => {
             setLimit(newLimit);
             setCurrentPage(1);
-            router.push(`?page=1`);
+            router.push(`?page=1&limit=${newLimit}`);
           }}
           limit={limit}
         />

@@ -123,7 +123,7 @@ const Limit = ({ onLimitChange, limit }) => (
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {[2, 5, 10, 15, 20].map((num) => (
+        {[1, 5, 10, 15, 20].map((num) => (
           <SelectItem key={num} value={num.toString()}>
             {num}
           </SelectItem>
