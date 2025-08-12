@@ -1,10 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconInnerShadowTop,
-} from "@tabler/icons-react";
-import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideShoppingBag, LucideFile, LucideImage, LucideBook } from "lucide-react";
+import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideImage, LucideListChecks, Sprout, Package, Landmark, BookOpen } from "lucide-react";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
@@ -34,17 +31,22 @@ const data = {
     {
       title: "Crop Master",
       url: "/admin/crops-list",
-      icon: LucideVegan,
+      icon: Sprout,
     },
     {
       title: "Product Master",
       url: "/admin/products-list",
-      icon: LucideShoppingBag,
+      icon: Package,
+    },
+    {
+      title: "Crops Sale Requests",
+      url: "/admin/sale-requests",
+      icon: LucideListChecks,
     },
     {
       title: "Govt Schemes Master",
       url: "/admin/list-schemes",
-      icon: LucideFile,
+      icon: Landmark,
     },
     {
       title: "Media Master",
@@ -54,7 +56,7 @@ const data = {
     {
       title: "Tutorials Master",
       url: "/admin/tutorials-list",
-      icon: LucideBook,
+      icon: BookOpen,
     }
   ],
 };
