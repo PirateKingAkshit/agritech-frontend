@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { showSuccess, showError } from "@/lib/toastUtils";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
@@ -28,88 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Quill from "quill";
 import "react-quill-new/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
-// Custom Quill Video Blot
-class VideoBlot extends Quill.import("blots/block/embed") {
-  static create(value) {
-    let node = super.create();
-    node.setAttribute("controls", "");
-    node.setAttribute("width", "100%");
-    node.setAttribute("style", "max-width: 100%; height: auto; display: block; margin: 0 auto;");
-    
-    let source = document.createElement("source");
-    source.setAttribute("src", value.url);
-    source.setAttribute("type", value.type || "video/mp4");
-    
-    node.appendChild(source);
-    return node;
-  }
-
-  static value(node) {
-    let source = node.querySelector("source");
-    return {
-      url: source ? source.getAttribute("src") : "",
-      type: source ? source.getAttribute("type") : "video/mp4",
-    };
-  }
-}
-VideoBlot.blotName = "video";
-VideoBlot.tagName = "video";
-Quill.register(VideoBlot);
-
-// Custom Quill Audio Blot
-class AudioBlot extends Quill.import("blots/block/embed") {
-  static create(value) {
-    let node = super.create();
-    node.setAttribute("controls", "");
-    node.setAttribute("style", "width: 100%; display: block; margin: 0 auto;");
-    
-    let source = document.createElement("source");
-    source.setAttribute("src", value.url);
-    source.setAttribute("type", value.type || "audio/mpeg");
-    
-    node.appendChild(source);
-    return node;
-  }
-
-  static value(node) {
-    let source = node.querySelector("source");
-    return {
-      url: source ? source.getAttribute("src") : "",
-      type: source ? source.getAttribute("type") : "audio/mpeg",
-    };
-  }
-}
-AudioBlot.blotName = "audio";
-AudioBlot.tagName = "audio";
-Quill.register(AudioBlot);
-
-// Custom Quill Iframe Blot
-class IframeBlot extends Quill.import("blots/block/embed") {
-  static create(value) {
-    let node = super.create();
-    node.setAttribute("src", value.url);
-    node.setAttribute("frameborder", "0");
-    node.setAttribute("allowfullscreen", "");
-    node.setAttribute("width", "100%");
-    node.setAttribute("height", "315");
-    node.setAttribute("style", "max-width: 100%; display: block; margin: 0 auto;");
-    return node;
-  }
-
-  static value(node) {
-    return {
-      url: node.getAttribute("src"),
-    };
-  }
-}
-IframeBlot.blotName = "iframe";
-IframeBlot.tagName = "iframe";
-Quill.register(IframeBlot);
+// Hold a reference to the Quill library after dynamic import
+const quillLibRefGlobal = { current: null };
 
 const AddTutorial = ({ type }) => {
   const instance = axiosInstance();
@@ -117,6 +41,8 @@ const AddTutorial = ({ type }) => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const quillRef = useRef(null);
+  const quillLibRef = useRef(null);
+  const blotRefs = useRef({ VideoBlot: null, AudioBlot: null, IframeBlot: null });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -150,60 +76,61 @@ const AddTutorial = ({ type }) => {
     { value: "audio", label: "Audio" },
   ];
 
-  const quillModules = {
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["clean"],
-        [{ align: [] }],
-        ["image", "video", "iframe"],
-      ],
-      handlers: {
-        iframe: function () {
-          if (quillRef.current) {
-            setEmbedUrl("");
-            setEmbedError("");
-            setIsEmbedModalOpen(true);
-            quillRef.current.getEditor().focus(); // Ensure editor is focused
-          }
-        },
-      },
-    },
-    keyboard: {
-      bindings: {
-        // Handle Enter key after video/audio/iframe embeds
-        enter: {
-          key: 13, // Enter key
-          handler: function (range, context) {
-            if (context && (context.format.video || context.format.audio || context.format.iframe)) {
-              const index = range.index + 1;
-              this.quill.insertText(index, "\n", "user");
-              this.quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
-              this.quill.setSelection(index + 2, Quill.sources.SILENT);
-              return false;
+  const quillModules = useMemo(() => {
+    const getSilent = () => quillLibRef.current?.sources?.SILENT || "silent";
+    return {
+      toolbar: {
+        container: [
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["clean"],
+          [{ align: [] }],
+          ["image", "video", "iframe"],
+        ],
+        handlers: {
+          iframe: function () {
+            if (quillRef.current) {
+              setEmbedUrl("");
+              setEmbedError("");
+              setIsEmbedModalOpen(true);
+              quillRef.current.getEditor().focus();
             }
-            return true;
-          },
-        },
-        // Handle down arrow to move past embeds
-        down: {
-          key: 40, // Down arrow
-          handler: function (range, context) {
-            if (context && (context.format.video || context.format.audio || context.format.iframe)) {
-              const index = range.index + 1;
-              this.quill.insertText(index, "\n", "user");
-              this.quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
-              this.quill.setSelection(index + 2, Quill.sources.SILENT);
-              return false;
-            }
-            return true;
           },
         },
       },
-    },
-  };
+      keyboard: {
+        bindings: {
+          enter: {
+            key: 13,
+            handler: function (range, context) {
+              if (context && (context.format.video || context.format.audio || context.format.iframe)) {
+                const index = range.index + 1;
+                this.quill.insertText(index, "\n", "user");
+                this.quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
+                this.quill.setSelection(index + 2, getSilent());
+                return false;
+              }
+              return true;
+            },
+          },
+          down: {
+            key: 40,
+            handler: function (range, context) {
+              if (context && (context.format.video || context.format.audio || context.format.iframe)) {
+                const index = range.index + 1;
+                this.quill.insertText(index, "\n", "user");
+                this.quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
+                this.quill.setSelection(index + 2, getSilent());
+                return false;
+              }
+              return true;
+            },
+          },
+        },
+      },
+    };
+  }, []);
   const quillFormats = [
     "header",
     "bold",
@@ -226,11 +153,21 @@ const AddTutorial = ({ type }) => {
     const range = quill.getSelection(true);
     if (range) {
       const [leaf] = quill.getLeaf(range.index);
-      if (leaf && (leaf.blot instanceof VideoBlot || leaf.blot instanceof AudioBlot || leaf.blot instanceof IframeBlot)) {
+      const { VideoBlot, AudioBlot, IframeBlot } = blotRefs.current || {};
+      if (
+        leaf &&
+        VideoBlot &&
+        AudioBlot &&
+        IframeBlot &&
+        (leaf.blot instanceof VideoBlot ||
+          leaf.blot instanceof AudioBlot ||
+          leaf.blot instanceof IframeBlot)
+      ) {
         const index = range.index + 1;
         quill.insertText(index, "\n", "user");
         quill.insertEmbed(index + 1, "block", "<p><br></p>", "user");
-        quill.setSelection(index + 2, Quill.sources.SILENT);
+        const silent = quillLibRef.current?.sources?.SILENT || "silent";
+        quill.setSelection(index + 2, silent);
       }
     }
   };
@@ -306,7 +243,8 @@ const AddTutorial = ({ type }) => {
 
     quill.insertText(range.index + 1, "\n", "user");
     quill.insertEmbed(range.index + 2, "block", "<p><br></p>", "user");
-    quill.setSelection(range.index + 3, Quill.sources.SILENT);
+    const silent = quillLibRef.current?.sources?.SILENT || "silent";
+    quill.setSelection(range.index + 3, silent);
     setIsMediaModalOpen(false);
   };
 
@@ -328,7 +266,8 @@ const AddTutorial = ({ type }) => {
     quill.insertEmbed(range.index, "iframe", { url: embedUrl }, "user");
     quill.insertText(range.index + 1, "\n", "user");
     quill.insertEmbed(range.index + 2, "block", "<p><br></p>", "user");
-    quill.setSelection(range.index + 3, Quill.sources.SILENT);
+    const silent = quillLibRef.current?.sources?.SILENT || "silent";
+    quill.setSelection(range.index + 3, silent);
 
     setIsEmbedModalOpen(false);
     setEmbedUrl("");
@@ -452,6 +391,99 @@ const AddTutorial = ({ type }) => {
       fetchMedia(currentPage);
     }
   }, [isMediaModalOpen, currentPage, selectedMediaType]);
+
+  // Dynamically import Quill and register custom blots on the client only
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const Quill = (await import("quill")).default;
+        if (!isMounted) return;
+
+        // Define and register custom blots after Quill loads in the browser
+        class VideoBlot extends Quill.import("blots/block/embed") {
+          static create(value) {
+            let node = super.create();
+            node.setAttribute("controls", "");
+            node.setAttribute("width", "100%");
+            node.setAttribute(
+              "style",
+              "max-width: 100%; height: auto; display: block; margin: 0 auto;"
+            );
+            let source = document.createElement("source");
+            source.setAttribute("src", value.url);
+            source.setAttribute("type", value.type || "video/mp4");
+            node.appendChild(source);
+            return node;
+          }
+          static value(node) {
+            let source = node.querySelector("source");
+            return {
+              url: source ? source.getAttribute("src") : "",
+              type: source ? source.getAttribute("type") : "video/mp4",
+            };
+          }
+        }
+        VideoBlot.blotName = "video";
+        VideoBlot.tagName = "video";
+        Quill.register(VideoBlot);
+
+        class AudioBlot extends Quill.import("blots/block/embed") {
+          static create(value) {
+            let node = super.create();
+            node.setAttribute("controls", "");
+            node.setAttribute("style", "width: 100%; display: block; margin: 0 auto;");
+            let source = document.createElement("source");
+            source.setAttribute("src", value.url);
+            source.setAttribute("type", value.type || "audio/mpeg");
+            node.appendChild(source);
+            return node;
+          }
+          static value(node) {
+            let source = node.querySelector("source");
+            return {
+              url: source ? source.getAttribute("src") : "",
+              type: source ? source.getAttribute("type") : "audio/mpeg",
+            };
+          }
+        }
+        AudioBlot.blotName = "audio";
+        AudioBlot.tagName = "audio";
+        Quill.register(AudioBlot);
+
+        class IframeBlot extends Quill.import("blots/block/embed") {
+          static create(value) {
+            let node = super.create();
+            node.setAttribute("src", value.url);
+            node.setAttribute("frameborder", "0");
+            node.setAttribute("allowfullscreen", "");
+            node.setAttribute("width", "100%");
+            node.setAttribute("height", "315");
+            node.setAttribute(
+              "style",
+              "max-width: 100%; display: block; margin: 0 auto;"
+            );
+            return node;
+          }
+          static value(node) {
+            return { url: node.getAttribute("src") };
+          }
+        }
+        IframeBlot.blotName = "iframe";
+        IframeBlot.tagName = "iframe";
+        Quill.register(IframeBlot);
+
+        quillLibRef.current = Quill;
+        blotRefs.current = { VideoBlot, AudioBlot, IframeBlot };
+        quillLibRefGlobal.current = Quill;
+      } catch (e) {
+        // If Quill fails to load in a non-browser environment, ignore
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="p-4 flex flex-col gap-6">
