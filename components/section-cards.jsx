@@ -1,6 +1,11 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
-
-import { Badge } from "@/components/ui/badge"
+import {
+  Sprout,
+  Package,
+  Landmark,
+  BookOpen,
+  LucideListChecks
+} from "lucide-react"; // Replaced trending icons with meaningful ones
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -8,96 +13,94 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function SectionCards() {
+export function SectionCards({ stats, loading }) {
+  const metrics = {
+    crops: stats?.crops ?? 0,
+    products: stats?.products ?? 0,
+    governmentSchemes: stats?.governmentSchemes ?? 0,
+    tutorials: stats?.tutorials ?? 0,
+    cropSaleRequests: stats?.cropSaleRequests ?? 0,
+  };
+
+  const items = [
+    {
+      label: "Total Crops",
+      value: metrics.crops,
+      icon: Sprout,
+      badge: "Agriculture",
+      footer: "All active crops in range",
+    },
+    {
+      label: "Total Products",
+      value: metrics.products,
+      icon: Package,
+      badge: "Inventory",
+      footer: "All active products in range",
+    },
+    {
+      label: "Govt. Schemes",
+      value: metrics.governmentSchemes,
+      icon: Landmark,
+      badge: "Schemes",
+      footer: "Schemes available in range",
+    },
+    {
+      label: "Tutorials",
+      value: metrics.tutorials,
+      icon: BookOpen,
+      badge: "Learning",
+      footer: "Tutorials created in range",
+    },
+    {
+      label: "Crop Sale Requests",
+      value: metrics.cropSaleRequests,
+      icon: LucideListChecks,
+      badge: "Requests",
+      footer: "Requests submitted in range",
+    },
+  ];
+
   return (
-    (<div
-      className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>New Customers</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingDown />
-              -20%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period <IconTrendingDown className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Acquisition needs attention
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +4.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
-        </CardFooter>
-      </Card>
-    </div>)
+    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      {items.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Card
+            key={item.label}
+            className="bg-gradient-to-t from-primary/5 to-card shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <CardDescription>{item.label}</CardDescription>
+                  <CardTitle className="text-2xl font-bold tabular-nums">
+                    {loading ? (
+                      <Skeleton className="h-8 w-24" />
+                    ) : (
+                      item.value.toLocaleString()
+                    )}
+                  </CardTitle>
+                </div>
+              </div>
+              <CardAction>
+                <Badge variant="outline">{item.badge}</Badge>
+              </CardAction>
+            </CardHeader>
+            {/* <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="line-clamp-1 font-medium">{item.footer}</div>
+              <div className="text-muted-foreground">
+                Based on selected date range
+              </div>
+            </CardFooter> */}
+          </Card>
+        );
+      })}
+    </div>
   );
 }

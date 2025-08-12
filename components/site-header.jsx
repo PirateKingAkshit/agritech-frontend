@@ -16,6 +16,7 @@ export function SiteHeader() {
     { title: "Govt Schemes Master", paths: ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"] },
     { title: "Media Master", paths: ["/admin/media-master"] },
     { title: "Tutorials Master", paths: ["/admin/tutorials-list", "/admin/add-tutorial", "/admin/edit-tutorial", "/admin/view-tutorial"] },
+    { title: "Crops Sale Requests", paths: ["/admin/sale-requests", "/admin/edit-sale-request"] },
   ];
   
   const getTitle = () =>

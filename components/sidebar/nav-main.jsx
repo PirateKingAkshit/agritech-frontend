@@ -22,6 +22,7 @@ export function NavMain({ items }) {
     "/admin/users-list": ["/admin/users-list", "/admin/add-user", "/admin/edit-user", "/admin/view-user"],
     "/admin/crops-list": ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"],
     "/admin/products-list": ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"],
+    "/admin/sale-requests": ["/admin/sale-requests", "/admin/edit-sale-request"],
     "/admin/list-schemes": ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"],
     "/admin/media-master": ["/admin/media-master"],
     "/admin/tutorials-list": ["/admin/tutorials-list", "/admin/add-tutorial", "/admin/edit-tutorial", "/admin/view-tutorial"],
