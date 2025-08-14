@@ -42,8 +42,8 @@ export function LoginForm({ className, ...props }) {
     try {
       const response = await axios.post("/users/login", formData);
       if (response?.status === 200) {
-        setCookie("agritech_token", JSONStringify(response?.data?.token),{maxAge: 60 * 60 * 24 * 30});
-        setCookie("agritech_user", JSONStringify(response?.data?.data),{maxAge: 60 * 60 * 24 * 30});
+        setCookie("agritech_token", JSONStringify(response?.data?.token),{maxAge: 60 * 60 * 12});
+        setCookie("agritech_user", JSONStringify(response?.data?.data),{maxAge: 60 * 60 * 12});
         showSuccess(response?.data?.message);
         router.push("/admin/dashboard");
       }
