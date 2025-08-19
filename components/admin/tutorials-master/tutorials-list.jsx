@@ -125,41 +125,55 @@ const TutorialsList = () => {
   const columns = useMemo(
     () => [
       {
-                    header: "Image",
-                    accessorKey: "image",
-                    cell: ({ getValue }) => {
-                      const imagePath = getValue()?.replace(/\\/g, "/"); // Ensure URL uses forward slashes
-                      const imageUrl = `${FileUrl}${imagePath}`;
-                  
-                      return (
-                        <div className="relative w-10 h-10">
-                          <Image
-                            src={imageUrl}
-                            alt="Crop Image"
-                            fill
-                            className="rounded-full object-cover"
-                            sizes="100px"
-                          />
-                        </div>
-                      );
-                    },
-                  },
+        header: "Image",
+        accessorKey: "image",
+        cell: ({ getValue }) => {
+          const value = getValue();
+          const imagePath = value === "null" ? null : value?.replace(/\\/g, "/"); // Ensure forward slashes
+          const imageUrl = imagePath
+            ? `${FileUrl}${imagePath}`
+            : "/default.png";
+          console.log("Image URL:", imageUrl); // Debugging line
+          return (
+            <div className="relative w-10 h-10">
+              <Image
+                src={imageUrl}
+                alt="Crop Image"
+                fill
+                className="rounded-sm object-cover"
+                sizes="100px"
+              />
+            </div>
+          );
+        },
+      },
       { header: "Name", accessorKey: "name" },
-      { header: "Language", accessorKey: "language", cell: ({ getValue }) => (
-        <Badge variant="secondary">
-          {getValue().toUpperCase()}
-        </Badge>
-      ) },
+      {
+        header: "Language",
+        accessorKey: "language",
+        cell: ({ getValue }) => (
+          <Badge variant="secondary">{getValue().toUpperCase()}</Badge>
+        ),
+      },
       {
         header: "Status",
         accessorKey: "isActive",
-        cell: ({ getValue }) => (
+        cell: ({ getValue }) =>
           getValue() ? (
-            <Badge variant="default" className="bg-primary text-primary-foreground">Active</Badge>
+            <Badge
+              variant="default"
+              className="bg-primary text-primary-foreground"
+            >
+              Active
+            </Badge>
           ) : (
-            <Badge variant="secondary" className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]">Inactive</Badge>
-          )
-        ),
+            <Badge
+              variant="secondary"
+              className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]"
+            >
+              Inactive
+            </Badge>
+          ),
       },
     ],
     []

@@ -150,7 +150,7 @@ const ProductsList = () => {
                 src={imageUrl}
                 alt="Product Image"
                 fill
-                className="rounded-full object-cover"
+                className="rounded-sm object-cover"
                 sizes="100px"
               />
             </div>

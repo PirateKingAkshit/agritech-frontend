@@ -12,15 +12,17 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 
 const statusVariants = {
-  Pending: { variant: "secondary" },
-  Approved: { variant: "default" },
-  Rejected: { variant: "destructive" },
-  Completed: { variant: "default" },
+  Pending: { variant: "secondary" },   // Grey - waiting
+  Confirmed: { variant: "default" },   // Primary - approved
+  Shipped: { variant: "outline" },     // Border - in transit
+  Delivered: { variant: "ghost" },     // Subtle - completed
+  Cancelled: { variant: "destructive" } // Red - cancelled
 };
 
-const statusOptions = ["Pending", "Approved", "Rejected", "Completed"];
 
-const SaleRequestsList = () => {
+const statusOptions = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
+
+const OrderRequestsList = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPage = Number(searchParams.get("page")) || 1;
@@ -44,7 +46,7 @@ const SaleRequestsList = () => {
       if (searchText.trim()) params.set("q", searchText.trim());
       if (statusFilter) params.set("status", statusFilter);
 
-      const response = await instance.get(`/crop-sale-requests?${params.toString()}`);
+      const response = await instance.get(`/product-orders?${params.toString()}`);
       if (response?.status === 200) {
         const { data, pagination } = response.data;
         setRequests(Array.isArray(data) ? data : []);
@@ -85,7 +87,7 @@ const SaleRequestsList = () => {
 
   const columns = useMemo(
     () => [
-      { header: "Request ID", accessorKey: "requestId" },
+      { header: "Order ID", accessorKey: "orderId" },
       {
         header: "User",
         accessorKey: "userId",
@@ -101,17 +103,17 @@ const SaleRequestsList = () => {
         },
       },
       {
-        header: "Crop",
-        accessorKey: "cropId",
+        header: "Product",
+        accessorKey: "productId",
         cell: ({ row }) => {
-          const crop = row.original?.cropId;
-          if (!crop) return "-";
-          return [crop.name, crop.category].filter(Boolean).join(" | ");
+          const product = row.original?.productId;
+          if (!product) return "-";
+          return [product.name].filter(Boolean).join(" | ");
         },
       },
       {
         header: "Image",
-        accessorKey: "cropId.image",
+        accessorKey: "productId.image",
         cell: ({ getValue }) => {
           const imagePath = getValue()?.replace(/\\/g, "/"); // Ensure URL uses forward slashes
           const imageUrl = `${FileUrl}${imagePath}`;
@@ -138,14 +140,11 @@ const SaleRequestsList = () => {
           return q != null && u ? `${q} ${u}` : q ?? "-";
         },
       },
-      //   {
-      //     header: "Price/Unit",
-      //     accessorKey: "price_per_unit",
-      //     cell: ({ getValue }) => {
-      //       const val = getValue();
-      //       return val != null ? `₹ ${val}` : "-";
-      //     },
-      //   },
+      {
+        header: "Amount",
+        accessorKey: "subTotal",
+        cell: ({ getValue }) => `₹ ${getValue()}`,
+      },
       {
         header: "Status",
         accessorKey: "status",
@@ -166,7 +165,7 @@ const SaleRequestsList = () => {
   const renderActions = (request) => (
     <div className="flex gap-2">
       <Link
-        href={`/admin/edit-sale-request?id=${request._id}`}
+        href={`/admin/edit-product-order?id=${request._id}`}
         className="text-yellow-600 hover:text-yellow-800"
         title="Edit"
       >
@@ -185,7 +184,7 @@ const SaleRequestsList = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search by Request ID"
+              placeholder="Search by Order ID"
               className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
             />
             <select
@@ -230,6 +229,6 @@ const SaleRequestsList = () => {
   );
 };
 
-export default SaleRequestsList;
+export default OrderRequestsList;
 
 
