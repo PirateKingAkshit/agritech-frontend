@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
 import { Button } from "@/components/ui/button";
 import { Loader, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
   Dialog,
@@ -36,6 +37,8 @@ const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 const quillLibRefGlobal = { current: null };
 
 const AddTutorial = ({ type }) => {
+  const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
+  const imageRef = useRef(null);
   const instance = axiosInstance();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,7 +52,11 @@ const AddTutorial = ({ type }) => {
     name: "",
     language: "",
     description: "",
+    image: null,
+    createdAt: "",
+    updatedAt: "",
   });
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [errors, setErrors] = useState({});
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [mediaItems, setMediaItems] = useState([]);
@@ -283,6 +290,9 @@ const AddTutorial = ({ type }) => {
           name: tutorial.name || "",
           language: tutorial.language || "",
           description: tutorial.description || "",
+          image: tutorial.image || null,
+          createdAt: tutorial.createdAt || "",
+          updatedAt: tutorial.updatedAt || "",
         });
       }
     } catch (error) {
@@ -324,7 +334,12 @@ const AddTutorial = ({ type }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await instance.post("/tutorial-master/", formData);
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && typeof value === "string") return;
+        formDataToSend.append(key, value);
+      });
+      const response = await instance.post("/tutorial-master/", formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Tutorial added successfully");
         router.push("/admin/tutorials-list");
@@ -346,6 +361,56 @@ const AddTutorial = ({ type }) => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024;
+
+    if (!file) {
+      setFormData((prev) => ({ ...prev, image: null }));
+      setErrors((prev) => ({ ...prev, image: "" }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      imageRef.current.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: "Only .jpg, .jpeg, .png, or .webp files are allowed",
+      }));
+      setFormData((prev) => ({ ...prev, image: null }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (file.size > maxSize) {
+      imageRef.current.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: "Image size should not exceed 2MB",
+      }));
+      setFormData((prev) => ({ ...prev, image: null }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    setFormData((prev) => ({ ...prev, image: file }));
+    setErrors((prev) => ({ ...prev, image: "" }));
+  };
+
+  const handleImageDelete = () => {
+    imageRef.current.value = "";
+    setFormData((prev) => ({ ...prev, image: null }));
+    setErrors((prev) => ({ ...prev, image: "" }));
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+  };
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
@@ -358,7 +423,12 @@ const AddTutorial = ({ type }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await instance.put(`/tutorial-master/${id}`, formData);
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && typeof value === "string") return;
+        formDataToSend.append(key, value);
+      });
+      const response = await instance.put(`/tutorial-master/${id}`, formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Tutorial updated successfully");
         router.push("/admin/tutorials-list");
@@ -554,6 +624,57 @@ const AddTutorial = ({ type }) => {
               )}
             </div>
 
+            <div>
+              <label htmlFor="image" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                Image
+              </label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                ref={imageRef}
+              />
+              {formData.image && formData.image !== "null" && (
+                <>
+                  {typeof formData.image === "string" ? (
+                    <Image
+                      src={`${FileUrl}${formData.image.replace(/\\/g, "/")}`}
+                      alt="Crop"
+                      width={128}
+                      height={128}
+                      className="mt-2 h-32 w-32 object-cover rounded"
+                    />
+                  ) : (
+                    previewUrl && (
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        width={128}
+                        height={128}
+                        className="mt-2 h-32 w-32 object-cover rounded"
+                      />
+                    )
+                  )}
+                  {type !== "View" && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="mt-2 px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                      onClick={handleImageDelete}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </>
+              )}
+              {errors.image && (
+                <p className="text-red-500 text-xs mt-1">{errors.image}</p>
+              )}
+            </div>
+
             <div className="sm:col-span-2">
               <label
                 htmlFor="description"
@@ -612,6 +733,34 @@ const AddTutorial = ({ type }) => {
                 <p className="text-red-500 text-xs mt-1">{errors.description}</p>
               )}
             </div>
+            {type === "View" && (
+            <div className="mt-6">
+              <label htmlFor="createdAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                  Created At
+                </label>
+                <input
+                  type="text"
+                  name="createdAt"
+                  value={formData.createdAt ? new Date(formData.createdAt).toLocaleString() : ""}
+                  disabled
+                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                />
+            </div>
+            )}
+            {type === "View" && (
+            <div className="mt-6">
+             <label htmlFor="updatedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                  Updated At
+                </label>
+                <input
+                  type="text"
+                  name="updatedAt"
+                  value={formData.updatedAt ? new Date(formData.updatedAt).toLocaleString() : ""}
+                  disabled
+                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                />
+            </div>
+            )}
           </div>
 
           {type !== "View" && (

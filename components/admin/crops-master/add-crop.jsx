@@ -395,8 +395,36 @@ const AddCrop = ({ type }) => {
                 <p className="text-red-500 text-xs mt-1">{errors.image}</p>
               )}
             </div>
+            {type === "View" && (
+            <div>
+              <label htmlFor="createdAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                  Created At
+                </label>
+                <input
+                  type="text"
+                  name="createdAt"
+                  value={formData.createdAt ? new Date(formData.createdAt).toLocaleString() : ""}
+                  disabled
+                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                />
+            </div>
+            )}
+            {type === "View" && (
+            <div>
+             <label htmlFor="updatedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                  Updated At
+                </label>
+                <input
+                  type="text"
+                  name="updatedAt"
+                  value={formData.updatedAt ? new Date(formData.updatedAt).toLocaleString() : ""}
+                  disabled
+                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                />
+            </div>
+            )}
           </div>
-
+          
           {type !== "View" && (
             <div className="flex justify-end mt-4">
               <Button

@@ -1,17 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { showSuccess, showError } from "@/lib/toastUtils";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
 import { Button } from "@/components/ui/button";
 import { Loader, ArrowLeft } from "lucide-react";
-
+import Image from "next/image";
 const AddUser = ({ type }) => {
+  const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
   const instance = axiosInstance();
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-
+  const imageRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [roles, setRoles] = useState([
     { role_id: "Admin", role_name: "Admin" },
@@ -28,11 +29,12 @@ const AddUser = ({ type }) => {
     city: "",
     address: "",
     role: "User",
+    image: null,
     createdAt: "",
     updatedAt: "",
   });
   const [errors, setErrors] = useState({});
-
+  const [previewUrl, setPreviewUrl] = useState(null);
   const validate = () => {
     const newErrors = {};
     if (!formData.phone.trim()) {
@@ -93,6 +95,7 @@ const AddUser = ({ type }) => {
           role: user.role || "",
           createdAt: user.createdAt || "",
           updatedAt: user.updatedAt || "",
+          image: user.image || null,
         });
       }
     } catch (error) {
@@ -110,7 +113,18 @@ const AddUser = ({ type }) => {
     setErrors({});
     setIsSubmitting(true);
     try {
-      const response = await instance.post("/users/register", formData);
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && typeof value === "string") return;
+
+        // stringify objects like location
+        if (typeof value === "object" && !(value instanceof File)) {
+          formDataToSend.append(key, JSON.stringify(value));
+        } else {
+          formDataToSend.append(key, value);
+        }
+      });
+      const response = await instance.post("/users/register", formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "User registered successfully");
         router.push("/admin/users-list");
@@ -142,7 +156,16 @@ const AddUser = ({ type }) => {
     setErrors({});
     setIsSubmitting(true);
     try {
-      const response = await instance.put(`/users/${id}`, formData);
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && typeof value === "string") return;
+        if (typeof value === "object" && !(value instanceof File)) {
+          formDataToSend.append(key, JSON.stringify(value));
+        } else {
+          formDataToSend.append(key, value);
+        }
+      });
+      const response = await instance.put(`/users/${id}`, formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "User updated successfully");
         router.push("/admin/users-list");
@@ -170,6 +193,55 @@ const AddUser = ({ type }) => {
     }
   }, [id, type]);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024;
+
+    if (!file) {
+      setFormData((prev) => ({ ...prev, image: null }));
+      setErrors((prev) => ({ ...prev, image: "" }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      imageRef.current.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: "Only .jpg, .jpeg, .png, or .webp files are allowed",
+      }));
+      setFormData((prev) => ({ ...prev, image: null }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (file.size > maxSize) {
+      imageRef.current.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: "Image size should not exceed 2MB",
+      }));
+      setFormData((prev) => ({ ...prev, image: null }));
+      setPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    setFormData((prev) => ({ ...prev, image: file }));
+    setErrors((prev) => ({ ...prev, image: "" }));
+  };
+
+  const handleImageDelete = () => {
+    imageRef.current.value = "";
+    setFormData((prev) => ({ ...prev, image: null }));
+    setErrors((prev) => ({ ...prev, image: "" }));
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+  };
   return (
     <div className="p-4 flex flex-col gap-6">
       <div className="bg-white dark:bg-background border shadow rounded-lg p-6">
@@ -180,7 +252,7 @@ const AddUser = ({ type }) => {
           <Button
             variant="default"
             size="sm"
-            onClick={() => router.push("/admin/users-list")}  
+            onClick={() => router.push("/admin/users-list")}
             className="gap-2"
           >
             <ArrowLeft size={16} />
@@ -333,7 +405,58 @@ const AddUser = ({ type }) => {
             ))}
 
             {/* Role */}
-            <div className="sm:col-span-2">
+            <div>
+              <label htmlFor="image" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                Image
+              </label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                ref={imageRef}
+              />
+              {formData.image && formData.image !== "null" && (
+                <>
+                  {typeof formData.image === "string" ? (
+                    <Image
+                      src={`${FileUrl}${formData.image.replace(/\\/g, "/")}`}
+                      alt="Crop"
+                      width={128}
+                      height={128}
+                      className="mt-2 h-32 w-32 object-cover rounded"
+                    />
+                  ) : (
+                    previewUrl && (
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        width={128}
+                        height={128}
+                        className="mt-2 h-32 w-32 object-cover rounded"
+                      />
+                    )
+                  )}
+                  {type !== "View" && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="mt-2 px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                      onClick={handleImageDelete}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </>
+              )}
+              {errors.image && (
+                <p className="text-red-500 text-xs mt-1">{errors.image}</p>
+              )}
+            </div>
+
+            <div>
               <label htmlFor="role" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
                 Role
               </label>

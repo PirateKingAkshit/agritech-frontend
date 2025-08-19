@@ -11,8 +11,9 @@ import Pagination from "@/components/pagination-component/pagination";
 import axiosInstance from "@/lib/axiosInstance";
 import { showSuccess } from "@/lib/toastUtils";
 import { Badge } from "@/components/ui/badge";
-
+import Image from "next/image";
 const TutorialsList = () => {
+  const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPage = Number(searchParams.get("page")) || 1;
@@ -123,6 +124,26 @@ const TutorialsList = () => {
 
   const columns = useMemo(
     () => [
+      {
+                    header: "Image",
+                    accessorKey: "image",
+                    cell: ({ getValue }) => {
+                      const imagePath = getValue()?.replace(/\\/g, "/"); // Ensure URL uses forward slashes
+                      const imageUrl = `${FileUrl}${imagePath}`;
+                  
+                      return (
+                        <div className="relative w-10 h-10">
+                          <Image
+                            src={imageUrl}
+                            alt="Crop Image"
+                            fill
+                            className="rounded-full object-cover"
+                            sizes="100px"
+                          />
+                        </div>
+                      );
+                    },
+                  },
       { header: "Name", accessorKey: "name" },
       { header: "Language", accessorKey: "language", cell: ({ getValue }) => (
         <Badge variant="secondary">

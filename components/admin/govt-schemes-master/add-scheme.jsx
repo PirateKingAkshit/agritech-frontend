@@ -14,12 +14,12 @@ const languages = [
   { code: "ben", name: "Bengali" },
   { code: "tam", name: "Tamil" },
   { code: "tel", name: "Telugu" },
-//   { code: "mar", name: "Marathi" },
-//   { code: "guj", name: "Gujarati" },
-//   { code: "kann", name: "Kannada" },
-//   { code: "mal", name: "Malayalam" },
-//   { code: "ori", name: "Odia" },
-//   { code: "pun", name: "Punjabi" },
+  //   { code: "mar", name: "Marathi" },
+  //   { code: "guj", name: "Gujarati" },
+  //   { code: "kann", name: "Kannada" },
+  //   { code: "mal", name: "Malayalam" },
+  //   { code: "ori", name: "Odia" },
+  //   { code: "pun", name: "Punjabi" },
 ];
 
 const AddScheme = ({ type }) => {
@@ -33,6 +33,8 @@ const AddScheme = ({ type }) => {
   const [formData, setFormData] = useState({
     name: "",
     translations: [{ name: "", language: "", description: "", image: null }],
+    createdAt: "",
+    updatedAt: ""
   });
   const [previewUrls, setPreviewUrls] = useState([]);
   const imageRefs = useRef([]);
@@ -40,10 +42,10 @@ const AddScheme = ({ type }) => {
 
   const validate = () => {
     const newErrors = {};
-  
+
     // Validate top-level name
     if (!formData.name.trim()) newErrors.name = "Name cannot be empty";
-  
+
     // Validate translations
     if (!formData.translations || formData.translations.length === 0) {
       newErrors.translations = "At least one translation is required";
@@ -52,27 +54,27 @@ const AddScheme = ({ type }) => {
         if (!t.name?.trim()) {
           newErrors[`translations[${index}].name`] = "Translation name cannot be empty";
         }
-  
+
         if (!t.language?.trim()) {
           newErrors[`translations[${index}].language`] = "Please select a language";
         }
-  
+
         const isNew = !t._id;
         const isExisting = !!t._id;
         const isImageMissing = !t.image;
         const isFile = t.image instanceof File;
         const isString = typeof t.image === "string";
-  
+
         if ((isNew && isImageMissing) || (isExisting && isImageMissing)) {
           newErrors[`translations[${index}].image`] = "Image is required";
         }
-  
+
         if (isFile && t.image.size > 2 * 1024 * 1024) {
           newErrors[`translations[${index}].image`] = "Image size should not exceed 2MB";
         }
       });
     }
-  
+
     return newErrors;
   };
 
@@ -229,6 +231,8 @@ const AddScheme = ({ type }) => {
             description: t.description || "",
             image: t.image || null,
           })),
+          createdAt: scheme.createdAt || "",
+          updatedAt: scheme.updatedAt || "",
         });
         setPreviewUrls(scheme.translation.map(() => null));
         imageRefs.current = scheme.translation.map(() => React.createRef());
@@ -264,7 +268,7 @@ const AddScheme = ({ type }) => {
         }
       });
 
-      const response = await instance.post("/government-scheme", formDataToSend); 
+      const response = await instance.post("/government-scheme", formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Scheme added successfully");
         router.push("/admin/list-schemes");
@@ -311,7 +315,7 @@ const AddScheme = ({ type }) => {
         }
       });
 
-      const response = await instance.put(`/government-scheme/${id}`, formDataToSend);    
+      const response = await instance.put(`/government-scheme/${id}`, formDataToSend);
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Scheme updated successfully");
         router.push("/admin/list-schemes");
@@ -358,7 +362,7 @@ const AddScheme = ({ type }) => {
             className="gap-2"
           >
             <ArrowLeft size={16} />
-            <span className="hidden sm:inline">Back</span> 
+            <span className="hidden sm:inline">Back</span>
           </Button>
         </div>
 
@@ -557,6 +561,34 @@ const AddScheme = ({ type }) => {
                 <p className="text-red-500 text-xs mt-1">{errors.translations}</p>
               )}
             </div>
+            {type === "View" && (
+              <div>
+                <label htmlFor="createdAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                  Created At
+                </label>
+                <input
+                  type="text"
+                  name="createdAt"
+                  value={formData.createdAt ? new Date(formData.createdAt).toLocaleString() : ""}
+                  disabled
+                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                />
+              </div>
+            )}
+            {type === "View" && (
+              <div>
+                <label htmlFor="updatedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                  Updated At
+                </label>
+                <input
+                  type="text"
+                  name="updatedAt"
+                  value={formData.updatedAt ? new Date(formData.updatedAt).toLocaleString() : ""}
+                  disabled
+                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                />
+              </div>
+            )}
           </div>
 
           {type !== "View" && (
