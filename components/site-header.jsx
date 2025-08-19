@@ -17,6 +17,7 @@ export function SiteHeader() {
     { title: "Media Master", paths: ["/admin/media-master"] },
     { title: "Tutorials Master", paths: ["/admin/tutorials-list", "/admin/add-tutorial", "/admin/edit-tutorial", "/admin/view-tutorial"] },
     { title: "Crops Sale Requests", paths: ["/admin/sale-requests", "/admin/edit-sale-request"] },
+    { title: "Product Order Requests", paths: ["/admin/order-requests", "/admin/edit-product-order"] },
   ];
   
   const getTitle = () =>

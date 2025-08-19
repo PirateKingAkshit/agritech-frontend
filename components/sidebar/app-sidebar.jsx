@@ -39,11 +39,6 @@ const data = {
       icon: Package,
     },
     {
-      title: "Crops Sale Requests",
-      url: "/admin/sale-requests",
-      icon: LucideListChecks,
-    },
-    {
       title: "Govt Schemes Master",
       url: "/admin/list-schemes",
       icon: Landmark,
@@ -57,7 +52,17 @@ const data = {
       title: "Tutorials Master",
       url: "/admin/tutorials-list",
       icon: BookOpen,
-    }
+    },
+    {
+      title: "Crops Sale Requests",
+      url: "/admin/sale-requests",
+      icon: LucideListChecks,
+    },
+    {
+      title: "Product Order Requests",
+      url: "/admin/order-requests",
+      icon: LucideListChecks,
+    },
   ],
 };
 

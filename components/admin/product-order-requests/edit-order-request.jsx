@@ -8,9 +8,9 @@ import { ArrowLeft, Loader } from "lucide-react";
 import { showSuccess } from "@/lib/toastUtils";
 import Image from "next/image";
 
-const statusOptions = ["Pending", "Approved", "Rejected", "Completed"];
+const statusOptions = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 
-const EditSaleRequest = () => {
+const EditOrderRequest = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -24,7 +24,7 @@ const EditSaleRequest = () => {
   const fetchRequest = async () => {
     if (!id) return;
     try {
-      const response = await instance.get(`/crop-sale-requests/${id}`);
+      const response = await instance.get(`/product-orders/${id}`);
       if (response?.status === 200) {
         const data = response.data?.data;
         setRequest(data);
@@ -45,10 +45,10 @@ const EditSaleRequest = () => {
     if (!id) return;
     setIsLoading(true);
     try {
-      const response = await instance.put(`/crop-sale-requests/${id}`, { status });
+      const response = await instance.put(`/product-orders/${id}`, { status });
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Status updated");
-        router.push("/admin/sale-requests");
+        router.push("/admin/order-requests");
       }
     } finally {
       setIsLoading(false);
@@ -73,12 +73,12 @@ const EditSaleRequest = () => {
       <div className="bg-white dark:bg-background border shadow rounded-lg p-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-200">
-            Edit Sale Request
+            Edit Product Order
           </h2>
           <Button
             variant="default"
             size="sm"
-            onClick={() => router.push("/admin/sale-requests")}
+            onClick={() => router.push("/admin/order-requests")}
             className="gap-2"
           >
             <ArrowLeft size={16} />
@@ -88,7 +88,7 @@ const EditSaleRequest = () => {
 
         <form onSubmit={handleUpdate}>
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-            {renderReadonly("Request ID", request?.requestId)}
+            {renderReadonly("Order ID", request?.orderId)}
             {renderReadonly(
               "User",
               (() => {
@@ -102,8 +102,8 @@ const EditSaleRequest = () => {
               })()
             )}
             {renderReadonly(
-              "Crop",
-              [request?.cropId?.name, request?.cropId?.category]
+              "Product",
+              [request?.productId?.name, request?.cropId?.category]
                 .filter(Boolean)
                 .join(" | ")
             )}
@@ -114,10 +114,8 @@ const EditSaleRequest = () => {
                 : request?.quantity
             )}
             {renderReadonly(
-              "Price/Unit",
-              request?.price_per_unit != null
-                ? `₹ ${request?.price_per_unit}`
-                : "-"
+              "Amount",
+              request?.subTotal != null ? `₹ ${request?.subTotal}` : "-"
             )}
             {renderReadonly(
               "Created At",
@@ -131,10 +129,7 @@ const EditSaleRequest = () => {
                 Image
               </label>
               <Image
-                src={`${FileUrl}${request?.cropId?.image.replace(
-                  /\\/g,
-                  "/"
-                )}`}
+                src={`${FileUrl}${request?.productId?.image.replace(/\\/g, "/")}`}
                 alt="Product"
                 width={128}
                 height={128}
@@ -178,6 +173,6 @@ const EditSaleRequest = () => {
   );
 };
 
-export default EditSaleRequest;
+export default EditOrderRequest;
 
 
