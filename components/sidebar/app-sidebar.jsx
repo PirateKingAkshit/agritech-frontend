@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { LucideVegan, LucideUser,LucideLayoutDashboard, LucideImage, LucideListChecks, Sprout, Package, Landmark, BookOpen } from "lucide-react";
+import { LucideVegan,Leaf, LucideUser,LucideLayoutDashboard, LucideImage, LucideListChecks, Sprout, Package, Landmark, BookOpen,ShoppingCart, ShoppingBasket,PlayCircle } from "lucide-react";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
@@ -31,7 +31,7 @@ const data = {
     {
       title: "Crop Master",
       url: "/admin/crops-list",
-      icon: Sprout,
+      icon: Leaf,
     },
     {
       title: "Product Master",
@@ -51,17 +51,17 @@ const data = {
     {
       title: "Tutorials Master",
       url: "/admin/tutorials-list",
-      icon: BookOpen,
+      icon: PlayCircle,
     },
     {
       title: "Crops Sale Requests",
       url: "/admin/sale-requests",
-      icon: LucideListChecks,
+      icon: ShoppingBasket,
     },
     {
       title: "Product Order Requests",
       url: "/admin/order-requests",
-      icon: LucideListChecks,
+      icon: ShoppingCart,
     },
   ],
 };

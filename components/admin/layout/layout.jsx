@@ -6,7 +6,7 @@ const AdminLayout = ({ children }) => {
   return (
     <SidebarProvider
       style={{
-        "--sidebar-width": "calc(var(--spacing) * 52)",
+        "--sidebar-width": "calc(var(--spacing) * 56)",
         "--header-height": "calc(var(--spacing) * 12)",
       }}
     >
