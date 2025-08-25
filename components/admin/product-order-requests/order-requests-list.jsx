@@ -103,46 +103,8 @@ const OrderRequestsList = () => {
         },
       },
       {
-        header: "Product",
-        accessorKey: "productId",
-        cell: ({ row }) => {
-          const product = row.original?.productId;
-          if (!product) return "-";
-          return [product.name].filter(Boolean).join(" | ");
-        },
-      },
-      {
-        header: "Image",
-        accessorKey: "productId.image",
-        cell: ({ getValue }) => {
-          const imagePath = getValue()?.replace(/\\/g, "/"); // Ensure URL uses forward slashes
-          const imageUrl = `${FileUrl}${imagePath}`;
-          console.log("Image URL:", imageUrl);
-          return (
-            <div className="relative w-10 h-10">
-              <Image
-                src={imageUrl}
-                alt="Product Image"
-                fill
-                className="rounded-sm object-cover"
-                sizes="100px"
-              />
-            </div>
-          );
-        },
-      },
-      {
-        header: "Quantity",
-        accessorKey: "quantity",
-        cell: ({ row }) => {
-          const q = row.original?.quantity;
-          const u = row.original?.quantity_unit;
-          return q != null && u ? `${q} ${u}` : q ?? "-";
-        },
-      },
-      {
         header: "Amount",
-        accessorKey: "subTotal",
+        accessorKey: "totalPrice",
         cell: ({ getValue }) => `₹ ${getValue()}`,
       },
       {
