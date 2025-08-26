@@ -101,42 +101,56 @@ const EditOrderRequest = () => {
                 return name || phone;
               })()
             )}
+            {request?.products?.map((prod, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-2 gap-4 border p-4 rounded-lg mb-4"
+              >
+                {renderReadonly(
+                  "Category",
+                  prod?.productId?.category
+                )}
+                {renderReadonly(
+                  "Product",
+                  [prod?.productId?.name, prod?.cropId?.category]
+                    .filter(Boolean)
+                    .join(" | ")
+                )}
+                {renderReadonly(
+                  "Quantity",
+                  prod?.quantity != null && prod?.quantity_unit
+                    ? `${prod?.quantity} ${prod?.quantity_unit}`
+                    : prod?.quantity
+                )}
+                {renderReadonly(
+                  "Price per unit",
+                  prod?.productId?.price
+                )}
+                <div className="sm:col-span-1">
+                  <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-200">
+                    Image
+                  </label>
+                  <div className="">
+                    <Image
+                    src={`${FileUrl}${prod?.productId?.image.replace(/\\/g, "/")}`}
+                    alt="Product"
+                    width={128}
+                    height={128}
+                    className="mt-2 h-32 w-32 object-cover rounded"
+                  />
+                  </div>
+                </div>
+                {renderReadonly(
+                  "Sub total",
+                  prod?.subTotal != null ? `₹ ${prod?.subTotal}` : "-"
+                )}
+              </div>
+            ))}
+            {renderReadonly("Total", request?.totalPrice)}
             {renderReadonly(
-              "Product",
-              [request?.productId?.name, request?.cropId?.category]
-                .filter(Boolean)
-                .join(" | ")
+              "Ordered at",
+              request?.createdAt ? new Date(request.createdAt).toLocaleString() : "-"
             )}
-            {renderReadonly(
-              "Quantity",
-              request?.quantity != null && request?.quantity_unit
-                ? `${request?.quantity} ${request?.quantity_unit}`
-                : request?.quantity
-            )}
-            {renderReadonly(
-              "Amount",
-              request?.subTotal != null ? `₹ ${request?.subTotal}` : "-"
-            )}
-            {renderReadonly(
-              "Created At",
-              request?.createdAt
-                ? new Date(request.createdAt).toLocaleString()
-                : "-"
-            )}
-
-            <div className="sm:col-span-2">
-              <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-200">
-                Image
-              </label>
-              <Image
-                src={`${FileUrl}${request?.productId?.image.replace(/\\/g, "/")}`}
-                alt="Product"
-                width={128}
-                height={128}
-                className="mt-2 h-32 w-32 object-cover rounded"
-              />
-            </div>
-
             <div className="sm:col-span-2">
               <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-200">
                 Status

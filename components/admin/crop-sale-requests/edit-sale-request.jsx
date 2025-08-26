@@ -120,6 +120,12 @@ const EditSaleRequest = () => {
                 : "-"
             )}
             {renderReadonly(
+              "Ready to sell on",
+              request?.ready_to_sell_on
+                ? new Date(request.ready_to_sell_on).toLocaleString()
+                : "-"
+            )}
+            {renderReadonly(
               "Created At",
               request?.createdAt
                 ? new Date(request.createdAt).toLocaleString()
