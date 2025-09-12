@@ -101,51 +101,64 @@ const EditOrderRequest = () => {
                 return name || phone;
               })()
             )}
-            {request?.products?.map((prod, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-2 gap-4 border p-4 rounded-lg mb-4"
-              >
-                {renderReadonly(
-                  "Category",
-                  prod?.productId?.category
-                )}
-                {renderReadonly(
-                  "Product",
-                  [prod?.productId?.name, prod?.cropId?.category]
+            <div className="sm:col-span-2">
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                Products
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {request?.products?.map((prod, index) => {
+                  const imageSrc = prod?.productId?.image
+                    ? `${FileUrl}${prod?.productId?.image.replace(/\\/g, "/")}`
+                    : "/default.png";
+                  const title = [prod?.productId?.name, prod?.cropId?.category]
                     .filter(Boolean)
-                    .join(" | ")
-                )}
-                {renderReadonly(
-                  "Quantity",
-                  prod?.quantity != null && prod?.quantity_unit
+                    .join(" | ");
+                  const category = prod?.productId?.category ?? "-";
+                  const quantity = prod?.quantity != null && prod?.quantity_unit
                     ? `${prod?.quantity} ${prod?.quantity_unit}`
-                    : prod?.quantity
-                )}
-                {renderReadonly(
-                  "Price per unit",
-                  prod?.productId?.price
-                )}
-                <div className="sm:col-span-1">
-                  <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-200">
-                    Image
-                  </label>
-                  <div className="">
-                    <Image
-                    src={`${FileUrl}${prod?.productId?.image.replace(/\\/g, "/")}`}
-                    alt="Product"
-                    width={128}
-                    height={128}
-                    className="mt-2 h-32 w-32 object-cover rounded"
-                  />
-                  </div>
-                </div>
-                {renderReadonly(
-                  "Sub total",
-                  prod?.subTotal != null ? `₹ ${prod?.subTotal}` : "-"
-                )}
+                    : (prod?.quantity ?? "-");
+                  const unitPrice = prod?.productId?.price ?? "-";
+                  const subTotal = prod?.subTotal != null ? `₹ ${prod?.subTotal}` : "-";
+
+                  return (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 bg-white dark:bg-background shadow-sm flex gap-4 items-start"
+                    >
+                      <Image
+                        src={imageSrc}
+                        alt="Product"
+                        width={96}
+                        height={96}
+                        className="h-24 w-24 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <div className="mb-2">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {title || "Product"}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{category}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <div className="text-gray-500 dark:text-gray-400">Quantity</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{quantity}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500 dark:text-gray-400">Price / unit</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{unitPrice}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500 dark:text-gray-400">Sub total</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{subTotal}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            </div>
             {renderReadonly("Total", request?.totalPrice)}
             {renderReadonly(
               "Ordered at",
