@@ -6,21 +6,8 @@ import axiosInstance from "@/lib/axiosInstance";
 import { Button } from "@/components/ui/button";
 import { Loader, ArrowLeft, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { languages } from "@/lib/languages";
 
-// Language list with ISO 639-2 codes and full names
-const languages = [
-  { code: "eng", name: "English" },
-  { code: "hin", name: "Hindi" },
-  { code: "ben", name: "Bengali" },
-  { code: "tam", name: "Tamil" },
-  { code: "tel", name: "Telugu" },
-  //   { code: "mar", name: "Marathi" },
-  //   { code: "guj", name: "Gujarati" },
-  //   { code: "kann", name: "Kannada" },
-  //   { code: "mal", name: "Malayalam" },
-  //   { code: "ori", name: "Odia" },
-  //   { code: "pun", name: "Punjabi" },
-];
 
 const AddScheme = ({ type }) => {
   const instance = axiosInstance();

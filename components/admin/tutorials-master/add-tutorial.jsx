@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import "react-quill-new/dist/quill.snow.css";
+import { languages } from "@/lib/languages";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -69,13 +70,6 @@ const AddTutorial = ({ type }) => {
   const [embedUrl, setEmbedUrl] = useState("");
   const [embedError, setEmbedError] = useState("");
 
-  const languages = [
-    { value: "eng", label: "English" },
-    { value: "hin", label: "Hindi" },
-    { value: "ben", label: "Bengali" },
-    { value: "tam", label: "Tamil" },
-    { value: "tel", label: "Telugu" },
-  ];
 
   const mediaTypes = [
     { value: "image", label: "Image" },
@@ -614,8 +608,8 @@ const AddTutorial = ({ type }) => {
                   Select Language
                 </option>
                 {languages.map((lang) => (
-                  <option key={lang.value} value={lang.value}>
-                    {lang.label}
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
                   </option>
                 ))}
               </select>
