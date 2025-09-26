@@ -20,11 +20,11 @@ import { Badge } from "@/components/ui/badge";
 
 // Language list with ISO 639-2 codes and full names
 const languages = [
-  { code: "eng", name: "English" },
-  { code: "hin", name: "Hindi" },
-  { code: "ben", name: "Bengali" },
-  { code: "tam", name: "Tamil" },
-  { code: "tel", name: "Telugu" },
+  // { code: "eng", name: "English" },
+  // { code: "hin", name: "Hindi" },
+  // { code: "ben", name: "Bengali" },
+  // { code: "tam", name: "Tamil" },
+  // { code: "tel", name: "Telugu" },
 //   { code: "mar", name: "Marathi" },
 //   { code: "guj", name: "Gujarati" },
 //   { code: "kann", name: "Kannada" },
@@ -172,7 +172,7 @@ const SchemesList = () => {
                     variant="secondary"
                     className="text-xs"
                   >
-                    {lang ? lang.name : t.language || "Unknown"}
+                    {lang ? lang.name : t.language.toUpperCase() || "Unknown"}
                   </Badge>
                 );
               })}
