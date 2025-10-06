@@ -30,13 +30,16 @@ import { JSONParse } from "@/lib/utils";
 import { useContext } from "react";
 import ThemeContext from "@/context/ThemeContext";
 import { Sun,Moon } from "lucide-react";
+import axiosInstance from "@/lib/axiosInstance";
 
 export function NavUser() {
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const instance = axiosInstance();
 
   const { isMobile } = useSidebar();
   const router = useRouter()
-  const handleLogout = () => {
+  const handleLogout = async() => {
+    await instance.post("/users/logout")
     deleteCookie('agritech_token')
     deleteCookie('agritech_user')
     router.push('/login')
