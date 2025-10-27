@@ -74,7 +74,13 @@ export function AppSidebar({ ...props }) {
   const userRole = user?.role || 'User';
 
   // Base navigation items
-  const baseNavItems = [
+  let baseNavItems = [];
+
+  if(userRole === 'Support'){
+    baseNavItems = []
+  }
+  else{
+      baseNavItems = [
     {
       title: "Dashboard",
       url: "/admin/dashboard",
@@ -121,11 +127,13 @@ export function AppSidebar({ ...props }) {
       icon: ShoppingCart,
     },
   ];
+  }
+
 
   // Add chat navigation based on user role
   const chatNavItems = [];
   
-  if (userRole === 'Support' || userRole === 'Admin') {
+  if (userRole === 'Support') {
     chatNavItems.push({
       title: "Support Chat",
       url: "/admin/support-chat",
