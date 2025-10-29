@@ -61,7 +61,7 @@ const ConversationItem = ({
         {/* Avatar */}
         <div className="relative">
           <Avatar className="w-12 h-12">
-            <AvatarImage src={otherParticipant?.image} alt={participantName} />
+            <AvatarImage src={`${process.env.NEXT_PUBLIC_FILEURL}` + otherParticipant?.image} alt={participantName} />
             <AvatarFallback className="text-sm">
               {participantInitials}
             </AvatarFallback>

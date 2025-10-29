@@ -148,7 +148,7 @@ const MessageBubble = ({
           {showAvatar && !isOwnMessage && (
             <div className="flex-shrink-0 mr-2">
               <Avatar className="w-8 h-8">
-                <AvatarImage src={senderId?.image} alt={senderName} />
+                <AvatarImage src={`${process.env.NEXT_PUBLIC_FILEURL}` + senderId?.image} alt={senderName} />
                 <AvatarFallback className="text-xs">
                   {senderInitials}
                 </AvatarFallback>

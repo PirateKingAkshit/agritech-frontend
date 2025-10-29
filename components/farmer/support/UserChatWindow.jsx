@@ -276,7 +276,7 @@ const UserChatWindow = () => {
             </Button>
             
             <Avatar className="w-10 h-10">
-              <AvatarImage src={supportAgent?.image} alt={supportName} />
+              <AvatarImage src={`${process.env.NEXT_PUBLIC_FILEURL}` + supportAgent?.image} alt={supportName} />
               <AvatarFallback>
                 {supportInitials}
               </AvatarFallback>

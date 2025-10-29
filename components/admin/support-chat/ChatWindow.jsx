@@ -285,7 +285,7 @@ const ChatWindow = ({ conversationId }) => {
             </Button>
             
             <Avatar className="w-10 h-10">
-              <AvatarImage src={otherParticipant?.image} alt={participantName} />
+              <AvatarImage src={`${process.env.NEXT_PUBLIC_FILEURL}` + otherParticipant?.image} alt={participantName} />
               <AvatarFallback>
                 {participantInitials}
               </AvatarFallback>

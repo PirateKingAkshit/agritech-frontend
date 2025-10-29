@@ -31,7 +31,7 @@ export const SocketProvider = ({ children }) => {
     }
 
     // Create socket connection
-    const socketInstance = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+    const socketInstance = io(process.env.NEXT_PUBLIC_FILEURL || 'http://localhost:5000', {
       auth: {
         token: token
       },
