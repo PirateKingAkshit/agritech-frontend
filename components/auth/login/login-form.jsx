@@ -45,7 +45,12 @@ export function LoginForm({ className, ...props }) {
         setCookie("agritech_token", JSONStringify(response?.data?.token),{maxAge: 60 * 60 * 12});
         setCookie("agritech_user", JSONStringify(response?.data?.data),{maxAge: 60 * 60 * 12});
         showSuccess(response?.data?.message);
-        router.push("/admin/dashboard");
+        if(response?.data?.data?.role === "Support"){
+          router.push("/admin/support-chat")
+        }
+        else{
+          router.push("/admin/dashboard");
+        }
       }
     } catch (error) {
       console.log(error);
