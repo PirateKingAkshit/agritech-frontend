@@ -54,7 +54,7 @@ export const SocketProvider = ({ children }) => {
     });
 
     socketInstance.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+      console.log('Socket connection error:', error);
       setConnectionError(error.message);
       setIsConnected(false);
       
