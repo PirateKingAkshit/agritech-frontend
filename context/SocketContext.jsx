@@ -20,77 +20,88 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
+  const [hasTriedInit, setHasTriedInit] = useState(false);
 
   useEffect(() => {
-    // Get token from cookies
-    const token = hasCookie('agritech_token') ? JSONParse(getCookie('agritech_token')) : null;
-    
-    if (!token) {
-      console.log('No token found, skipping socket connection');
-      return;
-    }
+    let canceled = false;
+    let retryTimer = null;
 
-    // Create socket connection
-    const socketInstance = io(process.env.NEXT_PUBLIC_FILEURL || 'http://localhost:5000', {
-      auth: {
-        token: token
-      },
-      autoConnect: true,
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
+    const tryInitSocket = () => {
+      if (canceled) return;
 
-    // Connection event handlers
-    socketInstance.on('connect', () => {
-      console.log('Socket connected:', socketInstance.id);
-      setIsConnected(true);
-      setConnectionError(null);
-    });
+      const token = hasCookie('agritech_token') ? JSONParse(getCookie('agritech_token')) : null;
 
-    socketInstance.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
-      setIsConnected(false);
-    });
-
-    socketInstance.on('connect_error', (error) => {
-      console.log('Socket connection error:', error);
-      setConnectionError(error.message);
-      setIsConnected(false);
-      
-      if (error.message.includes('Authentication error')) {
-        showError('Authentication failed. Please login again.');
-        // Clear cookies and redirect to login
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 2000);
+      if (!token) {
+        // Token may be set right after login/navigation; retry briefly
+        if (!hasTriedInit) {
+          retryTimer = setTimeout(tryInitSocket, 500);
+        }
+        return;
       }
-    });
 
-    socketInstance.on('reconnect', (attemptNumber) => {
-      console.log('Socket reconnected after', attemptNumber, 'attempts');
-      setIsConnected(true);
-      setConnectionError(null);
-    });
+      // Avoid creating multiple instances
+      if (socket) return;
 
-    socketInstance.on('reconnect_error', (error) => {
-      console.error('Socket reconnection error:', error);
-      setConnectionError(error.message);
-    });
+      const socketInstance = io(process.env.NEXT_PUBLIC_FILEURL || 'http://localhost:5000', {
+        auth: { token },
+        autoConnect: true,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
 
-    socketInstance.on('reconnect_failed', () => {
-      console.error('Socket reconnection failed');
-      setConnectionError('Unable to reconnect to server');
-      showError('Connection lost. Please refresh the page.');
-    });
+      socketInstance.on('connect', () => {
+        console.log('Socket connected:', socketInstance.id);
+        setIsConnected(true);
+        setConnectionError(null);
+      });
 
-    setSocket(socketInstance);
+      socketInstance.on('disconnect', (reason) => {
+        console.log('Socket disconnected:', reason);
+        setIsConnected(false);
+      });
 
-    // Cleanup on unmount
-    return () => {
-      socketInstance.close();
+      socketInstance.on('connect_error', (error) => {
+        console.log('Socket connection error:', error);
+        setConnectionError(error.message);
+        setIsConnected(false);
+        
+        if (error.message.includes('Authentication error')) {
+          showError('Authentication failed. Please login again.');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+        }
+      });
+
+      socketInstance.on('reconnect', (attemptNumber) => {
+        console.log('Socket reconnected after', attemptNumber, 'attempts');
+        setIsConnected(true);
+        setConnectionError(null);
+      });
+
+      socketInstance.on('reconnect_error', (error) => {
+        console.error('Socket reconnection error:', error);
+        setConnectionError(error.message);
+      });
+
+      socketInstance.on('reconnect_failed', () => {
+        console.error('Socket reconnection failed');
+        setConnectionError('Unable to reconnect to server');
+        showError('Connection lost. Please refresh the page.');
+      });
+
+      setSocket(socketInstance);
+      setHasTriedInit(true);
     };
-  }, []);
+
+    tryInitSocket();
+
+    return () => {
+      canceled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [socket, hasTriedInit]);
 
   const emit = (event, data) => {
     if (socket && isConnected) {
