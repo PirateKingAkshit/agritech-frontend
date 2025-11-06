@@ -115,42 +115,43 @@ export const useChatEvents = ({
   useEffect(() => {
     if (!isConnected) return;
 
+    // Create stable handler references
+    const handlers = {
+      'message:new': handleNewMessage,
+      'notification:new-message': handleNotificationNewMessage,
+      'typing:user-typing': handleTypingStart,
+      'typing:user-stopped': handleTypingStop,
+      'message:read-receipt': handleMessageReadReceipt,
+      'conversation:all-read': handleConversationAllRead,
+      'user:online': handleUserOnline,
+      'user:offline': handleUserOffline,
+      'error': handleError
+    };
+
     // Register all event listeners
-    on('message:new', handleNewMessage);
-    on('notification:new-message', handleNotificationNewMessage);
-    on('typing:user-typing', handleTypingStart);
-    on('typing:user-stopped', handleTypingStop);
-    on('message:read-receipt', handleMessageReadReceipt);
-    on('conversation:all-read', handleConversationAllRead);
-    on('user:online', handleUserOnline);
-    on('user:offline', handleUserOffline);
-    on('error', handleError);
+    Object.entries(handlers).forEach(([event, handler]) => {
+      on(event, handler);
+    });
 
     // Cleanup function
     return () => {
-      off('message:new', handleNewMessage);
-      off('notification:new-message', handleNotificationNewMessage);
-      off('typing:user-typing', handleTypingStart);
-      off('typing:user-stopped', handleTypingStop);
-      off('message:read-receipt', handleMessageReadReceipt);
-      off('conversation:all-read', handleConversationAllRead);
-      off('user:online', handleUserOnline);
-      off('user:offline', handleUserOffline);
-      off('error', handleError);
+      Object.entries(handlers).forEach(([event, handler]) => {
+        off(event, handler);
+      });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isConnected,
-    on,
-    off,
-    handleNewMessage,
-    handleNotificationNewMessage,
-    handleTypingStart,
-    handleTypingStop,
-    handleMessageReadReceipt,
-    handleConversationAllRead,
-    handleUserOnline,
-    handleUserOffline,
-    handleError
+    // Only re-register if these core dependencies change
+    onNewMessage,
+    onNotificationNewMessage,
+    onTypingStart,
+    onTypingStop,
+    onMessageReadReceipt,
+    onConversationAllRead,
+    onUserOnline,
+    onUserOffline,
+    onError
   ]);
 
   // Return connection status for components to use

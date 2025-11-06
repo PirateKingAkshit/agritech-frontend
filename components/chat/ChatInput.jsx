@@ -19,15 +19,20 @@ const ChatInput = ({
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const lastEmittedTypingRef = useRef(false);
   const { emit, isConnected } = useSocket();
 
-  // Handle typing indicators
+  // Handle typing indicators (optimized)
   useEffect(() => {
-    if (message.trim() && !isTyping) {
+    if (!isConnected) return;
+
+    if (message.trim() && !lastEmittedTypingRef.current) {
       setIsTyping(true);
       emit('typing:start', { conversationId });
+      lastEmittedTypingRef.current = true;
     }
 
     // Clear existing timeout
@@ -36,31 +41,42 @@ const ChatInput = ({
     }
 
     // Set new timeout to stop typing
-    typingTimeoutRef.current = setTimeout(() => {
-      if (isTyping) {
+    if (message.trim()) {
+      typingTimeoutRef.current = setTimeout(() => {
+        if (lastEmittedTypingRef.current) {
+          setIsTyping(false);
+          emit('typing:stop', { conversationId });
+          lastEmittedTypingRef.current = false;
+        }
+      }, 2000);
+    } else {
+      // Message cleared, stop typing immediately
+      if (lastEmittedTypingRef.current) {
         setIsTyping(false);
         emit('typing:stop', { conversationId });
+        lastEmittedTypingRef.current = false;
       }
-    }, 2000);
+    }
 
     return () => {
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, [message, conversationId, emit, isTyping]);
+  }, [message, conversationId, emit, isConnected]);
 
   // Cleanup typing indicator on unmount
   useEffect(() => {
     return () => {
-      if (isTyping) {
+      if (lastEmittedTypingRef.current && isConnected) {
         emit('typing:stop', { conversationId });
+        lastEmittedTypingRef.current = false;
       }
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, [isTyping, conversationId, emit]);
+  }, [conversationId, emit, isConnected]);
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
@@ -116,8 +132,10 @@ const ChatInput = ({
       showError('Not connected to server');
       return;
     }
+    if (sendingMessage) return; // Prevent duplicate sends
 
     const tempId = generateTempId();
+    setSendingMessage(true);
 
     try {
       // If there are files, upload them first
@@ -126,36 +144,61 @@ const ChatInput = ({
         
         if (uploadedMedia.length === 0) {
           showError('Failed to upload media');
+          setSendingMessage(false);
           return;
         }
 
-        // Send media message(s)
+        // Send media message(s) with acknowledgment
         for (const media of uploadedMedia) {
-          emit('message:send', {
-            conversationId,
-            messageType: media.type,
-            mediaId: media._id,
-            tempId: generateTempId()
-          });
+          emit('message:send', 
+            {
+              conversationId,
+              messageType: media.type,
+              mediaId: media._id,
+              tempId: generateTempId()
+            },
+            (response) => {
+              if (response?.error) {
+                console.error('Failed to send media:', response.error);
+                showError('Failed to send media message');
+              }
+            }
+          );
         }
 
         // Send text message if there's text
         if (message.trim()) {
-          emit('message:send', {
+          emit('message:send', 
+            {
+              conversationId,
+              messageType: 'text',
+              content: message.trim(),
+              tempId: generateTempId()
+            },
+            (response) => {
+              if (response?.error) {
+                console.error('Failed to send message:', response.error);
+                showError('Failed to send message');
+              }
+            }
+          );
+        }
+      } else {
+        // Send text message with acknowledgment
+        emit('message:send', 
+          {
             conversationId,
             messageType: 'text',
             content: message.trim(),
-            tempId: generateTempId()
-          });
-        }
-      } else {
-        // Send text message
-        emit('message:send', {
-          conversationId,
-          messageType: 'text',
-          content: message.trim(),
-          tempId
-        });
+            tempId
+          },
+          (response) => {
+            if (response?.error) {
+              console.error('Failed to send message:', response.error);
+              showError('Failed to send message');
+            }
+          }
+        );
       }
 
       // Clear input and files
@@ -163,9 +206,10 @@ const ChatInput = ({
       setSelectedFiles([]);
       
       // Stop typing indicator
-      if (isTyping) {
+      if (lastEmittedTypingRef.current) {
         setIsTyping(false);
         emit('typing:stop', { conversationId });
+        lastEmittedTypingRef.current = false;
       }
 
       // Notify parent component
@@ -176,6 +220,8 @@ const ChatInput = ({
     } catch (error) {
       console.error('Error sending message:', error);
       showError('Failed to send message');
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -186,7 +232,7 @@ const ChatInput = ({
     }
   };
 
-  const canSend = (message.trim() || selectedFiles.length > 0) && !isUploading && isConnected;
+  const canSend = (message.trim() || selectedFiles.length > 0) && !isUploading && !sendingMessage && isConnected;
 
   return (
     <div className="border-t bg-white dark:bg-gray-900 p-4">
