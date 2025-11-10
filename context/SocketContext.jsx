@@ -100,8 +100,14 @@ export const SocketProvider = ({ children }) => {
     return () => {
       canceled = true;
       if (retryTimer) clearTimeout(retryTimer);
+      // Disconnect socket on unmount
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
     };
-  }, [socket, hasTriedInit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const emit = (event, data) => {
     if (socket && isConnected) {

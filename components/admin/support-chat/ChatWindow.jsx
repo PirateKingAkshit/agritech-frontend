@@ -32,10 +32,11 @@ const ChatWindow = ({ conversationId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [typingUser, setTypingUser] = useState(null);
-  const [isJoiningRoom, setIsJoiningRoom] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   
   const messagesEndRef = useRef(null);
   const scrollAreaRef = useRef(null);
+  const joinedRoomRef = useRef(null);
   const router = useRouter();
   const { emit, isConnected } = useSocket();
   const currentUser = getCurrentUser();
@@ -58,6 +59,11 @@ const ChatWindow = ({ conversationId }) => {
   const loadMessages = useCallback(async (page = 1, append = false) => {
     try {
       setMessagesLoading(true);
+      // Disable auto-scroll when loading history
+      if (append) {
+        setShouldAutoScroll(false);
+      }
+      
       const response = await getMessages(conversationId, page, limit);
       
       if (response.data) {
@@ -65,6 +71,11 @@ const ChatWindow = ({ conversationId }) => {
         setMessages(prev => append ? [...newMessages, ...prev] : newMessages);
         setCurrentPage(page);
         setHasMoreMessages(newMessages.length === limit);
+        
+        // Re-enable auto-scroll after a delay
+        if (append) {
+          setTimeout(() => setShouldAutoScroll(true), 500);
+        }
       }
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -90,30 +101,35 @@ const ChatWindow = ({ conversationId }) => {
 
   // Join conversation room
   useEffect(() => {
-    if (conversation && isConnected && !isJoiningRoom) {
-      setIsJoiningRoom(true);
-      emit('conversation:join', { conversationId });
+    if (conversation && isConnected && joinedRoomRef.current !== conversationId) {
+      // Leave previous room if any
+      if (joinedRoomRef.current) {
+        emit('conversation:leave', { conversationId: joinedRoomRef.current });
+      }
       
-      // Mark all messages as read
+      // Join new room
+      emit('conversation:join', { conversationId });
       emit('conversation:mark-all-read', { conversationId });
+      joinedRoomRef.current = conversationId;
     }
-  }, [conversation, isConnected, conversationId, emit, isJoiningRoom]);
+  }, [conversation, isConnected, conversationId, emit]);
 
-  // Leave room on unmount
+  // Leave room on unmount or conversation change
   useEffect(() => {
     return () => {
-      if (isConnected) {
-        emit('conversation:leave', { conversationId });
+      if (joinedRoomRef.current && isConnected) {
+        emit('conversation:leave', { conversationId: joinedRoomRef.current });
+        joinedRoomRef.current = null;
       }
     };
-  }, [conversationId, emit, isConnected]);
+  }, [emit, isConnected]);
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom only for new messages
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && shouldAutoScroll) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, shouldAutoScroll]);
 
   // Handle new message
   const handleNewMessage = useCallback((data) => {
