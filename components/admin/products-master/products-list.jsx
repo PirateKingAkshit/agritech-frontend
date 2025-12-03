@@ -2,7 +2,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, Edit, Trash, LucideToggleLeft, LucideToggleRight } from "lucide-react";
+import {
+  Eye,
+  Edit,
+  Trash,
+  LucideToggleLeft,
+  LucideToggleRight,
+} from "lucide-react";
 import { IconPlus } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/confirmation-modal";
@@ -71,13 +77,13 @@ const ProductsList = () => {
 
   const openDeleteModal = (id) => {
     setSelectedProduct({ id });
-    setModalType('delete');
+    setModalType("delete");
     setIsModalOpen(true);
   };
 
   const openToggleModal = (product) => {
     setSelectedProduct(product);
-    setModalType('toggle');
+    setModalType("toggle");
     setIsModalOpen(true);
   };
 
@@ -89,7 +95,9 @@ const ProductsList = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await instance.delete(`/product-master/${selectedProduct.id}`);
+      const response = await instance.delete(
+        `/product-master/${selectedProduct.id}`
+      );
       if (response?.status === 200) {
         showSuccess(response?.data?.message);
         fetchProducts();
@@ -143,7 +151,7 @@ const ProductsList = () => {
         cell: ({ getValue }) => {
           const imagePath = getValue()?.replace(/\\/g, "/"); // Ensure URL uses forward slashes
           const imageUrl = `${FileUrl}${imagePath}`;
-      
+
           return (
             <div className="relative w-10 h-10">
               <Image
@@ -158,18 +166,46 @@ const ProductsList = () => {
         },
       },
       { header: "Unit", accessorKey: "unit" },
-      { header: "Price", accessorKey: "price", cell: ({ getValue }) => `₹ ${getValue()}` },
-      { header: "Category", accessorKey: "category" },
+      {
+        header: "Price",
+        accessorKey: "price",
+        cell: ({ getValue }) => `₹ ${getValue()}`,
+      },
+      // { header: "Category", accessorKey: "category" },
+      {
+        header: "Category",
+        accessorKey: "category",
+        cell: ({ row }) => {
+          const category = row.original.category;
+
+          // If API returns populated object
+          if (category && typeof category === "object") {
+            return category.name;
+          }
+
+          // If only objectId is returned
+          return "-";
+        },
+      },
       {
         header: "Status",
         accessorKey: "isActive",
-        cell: ({ getValue }) => (
+        cell: ({ getValue }) =>
           getValue() ? (
-            <Badge variant="default" className="bg-primary text-primary-foreground">Active</Badge>
+            <Badge
+              variant="default"
+              className="bg-primary text-primary-foreground"
+            >
+              Active
+            </Badge>
           ) : (
-            <Badge variant="secondary" className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]">Inactive</Badge>
-          )
-        ),
+            <Badge
+              variant="secondary"
+              className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]"
+            >
+              Inactive
+            </Badge>
+          ),
       },
     ],
     []
@@ -196,10 +232,14 @@ const ProductsList = () => {
         className="text-green-600 hover:text-green-800 cursor-pointer"
         title={product.isActive ? "Inactive" : "Active"}
       >
-        {product.isActive ? <LucideToggleRight size={16} /> : <LucideToggleLeft size={16} />}
+        {product.isActive ? (
+          <LucideToggleRight size={16} />
+        ) : (
+          <LucideToggleLeft size={16} />
+        )}
       </button>
       <button
-          onClick={() => openDeleteModal(product._id)}
+        onClick={() => openDeleteModal(product._id)}
         className="text-red-600 hover:text-red-800 cursor-pointer"
         title="Delete"
       >
@@ -230,11 +270,7 @@ const ProductsList = () => {
 
           {/* Add Button */}
           <Link href="/admin/add-products">
-            <Button
-              variant="default"
-              size="sm"
-              className="gap-2"
-            >
+            <Button variant="default" size="sm" className="gap-2">
               <IconPlus size={16} />
               <span className="hidden sm:inline">Add Product</span>
             </Button>
@@ -269,30 +305,40 @@ const ProductsList = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         onConfirm={
-          modalType === 'delete' ? handleDelete :
-          modalType === 'toggle' ? handleToggleStatus :
-          undefined
+          modalType === "delete"
+            ? handleDelete
+            : modalType === "toggle"
+            ? handleToggleStatus
+            : undefined
         }
         title={
-          modalType === 'delete' ? 'Confirm Deletion' :
-          modalType === 'toggle' && selectedProduct ? (selectedProduct.isActive ? 'Disable Product' : 'Enable Product') :
-          ''
+          modalType === "delete"
+            ? "Confirm Deletion"
+            : modalType === "toggle" && selectedProduct
+            ? selectedProduct.isActive
+              ? "Disable Product"
+              : "Enable Product"
+            : ""
         }
         description={
-          modalType === 'delete' ? 'Are you sure you want to delete this product? This action cannot be undone.' :
-          modalType === 'toggle' && selectedProduct ? (
-            selectedProduct.isActive
-              ? 'Are you sure you want to disable this product? You can enable it again later.'
-              : 'Are you sure you want to enable this product?'
-          ) :
-          ''
+          modalType === "delete"
+            ? "Are you sure you want to delete this product? This action cannot be undone."
+            : modalType === "toggle" && selectedProduct
+            ? selectedProduct.isActive
+              ? "Are you sure you want to disable this product? You can enable it again later."
+              : "Are you sure you want to enable this product?"
+            : ""
         }
         confirmButtonText={
-          modalType === 'delete' ? 'Delete' :
-          modalType === 'toggle' && selectedProduct ? (selectedProduct.isActive ? 'Disable' : 'Enable') :
-          ''
+          modalType === "delete"
+            ? "Delete"
+            : modalType === "toggle" && selectedProduct
+            ? selectedProduct.isActive
+              ? "Disable"
+              : "Enable"
+            : ""
         }
-        confirmButtonVariant={modalType === 'delete' ? 'outline' : 'outline'}
+        confirmButtonVariant={modalType === "delete" ? "outline" : "outline"}
       />
     </div>
   );

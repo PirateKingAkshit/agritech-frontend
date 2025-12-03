@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -19,6 +18,29 @@ const AddProduct = ({ type }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await instance.get("/product-category-master");
+        const data = response.data?.data;
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+        showError(
+          error?.response?.data?.message || "Failed to load categories"
+        );
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     skuCode: "",
@@ -28,7 +50,7 @@ const AddProduct = ({ type }) => {
     category: "",
     description: "",
     image: null,
-    createdAt:"",
+    createdAt: "",
     updatedAt: "",
   });
   const [errors, setErrors] = useState({});
@@ -42,8 +64,9 @@ const AddProduct = ({ type }) => {
     if (!formData?.quantity.trim()) newErrors.quantity = "Quantity is required";
     if (!formData?.unit) newErrors.unit = "Unit is required";
     if (!formData?.price) newErrors.price = "Price is required";
-    if (!formData?.category.trim()) newErrors.category = "Category is required";
-    if (!formData?.description.trim()) newErrors.description = "Description is required";
+    if (!formData?.category) newErrors.category = "Category is required";
+    if (!formData?.description.trim())
+      newErrors.description = "Description is required";
     if (!formData?.image) newErrors.image = "Image is required";
     if (formData?.image && formData?.image?.size > 2 * 1024 * 1024) {
       newErrors.image = "Image size should not exceed 2MB";
@@ -114,7 +137,7 @@ const AddProduct = ({ type }) => {
     try {
       const response = await instance.get(`/product-master/${id}`);
       if (response.data?.data) {
-        const product = response.data.data;
+        const product = response.data?.data;
         // Assuming unit comes as "5kg", split into quantity and unit
         const unitMatch = product.unit.match(/^(\d+)([a-zA-Z]+)$/);
         const quantity = unitMatch ? unitMatch[1] : "";
@@ -125,7 +148,7 @@ const AddProduct = ({ type }) => {
           unit: unit || "",
           quantity: quantity || "",
           price: product.price || "",
-          category: product.category || "",
+          category: product.category?._id || "",
           description: product.description || "",
           image: product.image || null,
           createdAt: product.createdAt || "",
@@ -202,7 +225,10 @@ const AddProduct = ({ type }) => {
           formDataToSend.append(key, value);
         }
       });
-      const response = await instance.put(`/product-master/${id}`, formDataToSend);
+      const response = await instance.put(
+        `/product-master/${id}`,
+        formDataToSend
+      );
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Product updated successfully");
         router.push("/admin/products-list");
@@ -368,7 +394,7 @@ const AddProduct = ({ type }) => {
               )}
             </div>
             {/* Category */}
-            <div>
+            {/* <div>
               <label
                 htmlFor="category"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
@@ -387,7 +413,49 @@ const AddProduct = ({ type }) => {
               {errors.category && (
                 <p className="text-red-500 text-xs mt-1">{errors.category}</p>
               )}
+            </div> */}
+            <div>
+              <label
+                htmlFor="category"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Category *
+              </label>
+
+              {type === "View" ? (
+                // View Mode:
+                <div className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 rounded border border-border">
+                  {categories.find((cat) => cat._id === formData.category)
+                    ?.name || "-"}
+                </div>
+              ) : (
+                // Add / Edit Mode: Dropdown
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  disabled={loadingCategories}
+                  className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200 disabled:bg-gray-100 disabled:text-gray-500"
+                >
+                  <option value="">
+                    {loadingCategories
+                      ? "Loading categories..."
+                      : "Select a category"}
+                  </option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {/* Show validation error only in Add/Edit mode */}
+              {type !== "View" && errors.category && (
+                <p className="text-red-500 text-xs mt-1">{errors.category}</p>
+              )}
             </div>
+
             {/* Description */}
             <div className="sm:col-span-2">
               <label
@@ -406,7 +474,9 @@ const AddProduct = ({ type }) => {
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-y"
               />
               {errors.description && (
-                <p className="text-red-500 text-xs mt-1">{errors.description}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.description}
+                </p>
               )}
             </div>
             {/* Image Upload */}
@@ -461,32 +531,46 @@ const AddProduct = ({ type }) => {
               )}
             </div>
             {type === "View" && (
-            <div>
-              <label htmlFor="createdAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <div>
+                <label
+                  htmlFor="createdAt"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
                   Created At
                 </label>
                 <input
                   type="text"
                   name="createdAt"
-                  value={formData.createdAt ? new Date(formData.createdAt).toLocaleString() : ""}
+                  value={
+                    formData.createdAt
+                      ? new Date(formData.createdAt).toLocaleString()
+                      : ""
+                  }
                   disabled
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 />
-            </div>
+              </div>
             )}
             {type === "View" && (
-            <div>
-             <label htmlFor="updatedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <div>
+                <label
+                  htmlFor="updatedAt"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
                   Updated At
                 </label>
                 <input
                   type="text"
                   name="updatedAt"
-                  value={formData.updatedAt ? new Date(formData.updatedAt).toLocaleString() : ""}
+                  value={
+                    formData.updatedAt
+                      ? new Date(formData.updatedAt).toLocaleString()
+                      : ""
+                  }
                   disabled
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 />
-            </div>
+              </div>
             )}
           </div>
           {type !== "View" && (

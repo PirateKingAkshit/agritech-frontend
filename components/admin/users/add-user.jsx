@@ -18,6 +18,13 @@ const AddUser = ({ type }) => {
     { role_id: "Admin", role_name: "Admin" },
     { role_id: "User", role_name: "User" },
   ]);
+  const [userTypes, setUserType] = useState([
+    { type_id: "Farmer", type_name: "Farmer" },
+    { type_id: "Seller", type_name: "Seller" },
+    { type_id: "Local Dealers", type_name: "Local Dealers" },
+    { type_id: "Distributors", type_name: "Distributors" },
+    { type_id: "Buyer", type_name: "Buyer" },
+  ]);
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -30,6 +37,11 @@ const AddUser = ({ type }) => {
     address: "",
     role: "User",
     image: null,
+    userType: "",
+    soilType: "",
+    cropType: "",
+    landSize: "",
+    farmLocation: "",
     createdAt: "",
     updatedAt: "",
   });
@@ -49,15 +61,20 @@ const AddUser = ({ type }) => {
     if (formData.password && formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
     }
-    if (formData.location.lat && (formData.location.lat < -90 || formData.location.lat > 90)) {
+    if (
+      formData.location.lat &&
+      (formData.location.lat < -90 || formData.location.lat > 90)
+    ) {
       newErrors["location.lat"] = "Latitude must be between -90 and 90";
     }
-    if (formData.location.long && (formData.location.long < -180 || formData.location.long > 180)) {
+    if (
+      formData.location.long &&
+      (formData.location.long < -180 || formData.location.long > 180)
+    ) {
       newErrors["location.long"] = "Longitude must be between -180 and 180";
     }
     return newErrors;
   };
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,6 +113,11 @@ const AddUser = ({ type }) => {
           createdAt: user.createdAt || "",
           updatedAt: user.updatedAt || "",
           image: user.image || null,
+          userType: user.userType || "",
+          soilType: user.soilType || "",
+          cropType: user.cropType || "",
+          landSize: user.landSize || "",
+          farmLocation: user.farmLocation || "",
         });
       }
     } catch (error) {
@@ -139,7 +161,9 @@ const AddUser = ({ type }) => {
         });
         setErrors(newErrors);
       } else {
-        showError(error?.response?.data?.error?.message || "Something went wrong");
+        showError(
+          error?.response?.data?.error?.message || "Something went wrong"
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -264,7 +288,10 @@ const AddUser = ({ type }) => {
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="phone"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 Phone *
               </label>
               <input
@@ -276,12 +303,17 @@ const AddUser = ({ type }) => {
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 placeholder="e.g., +1234567890"
               />
-              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+              {errors.phone && (
+                <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+              )}
             </div>
 
             {/* First Name */}
             <div>
-              <label htmlFor="first_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="first_name"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 First Name
               </label>
               <input
@@ -293,12 +325,17 @@ const AddUser = ({ type }) => {
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 placeholder="First name"
               />
-              {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>}
+              {errors.first_name && (
+                <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>
+              )}
             </div>
 
             {/* Last Name */}
             <div>
-              <label htmlFor="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="last_name"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 Last Name
               </label>
               <input
@@ -310,12 +347,17 @@ const AddUser = ({ type }) => {
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 placeholder="Last name"
               />
-              {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
+              {errors.last_name && (
+                <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>
+              )}
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="email"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 Email
               </label>
               <input
@@ -327,13 +369,18 @@ const AddUser = ({ type }) => {
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 placeholder="Email"
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
             </div>
 
             {/* Password */}
             {type === "Add" && (
               <div>
-                <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                <label
+                  htmlFor="password"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
                   Password
                 </label>
                 <input
@@ -344,13 +391,18 @@ const AddUser = ({ type }) => {
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                   placeholder="Password"
                 />
-                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                )}
               </div>
             )}
 
             {/* Location: Latitude */}
             <div>
-              <label htmlFor="location.lat" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="location.lat"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 Latitude
               </label>
               <input
@@ -362,12 +414,19 @@ const AddUser = ({ type }) => {
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 placeholder="e.g., 40.7128"
               />
-              {errors["location.lat"] && <p className="text-red-500 text-xs mt-1">{errors["location.lat"]}</p>}
+              {errors["location.lat"] && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors["location.lat"]}
+                </p>
+              )}
             </div>
 
             {/* Location: Longitude */}
             <div>
-              <label htmlFor="location.long" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="location.long"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 Longitude
               </label>
               <input
@@ -379,7 +438,11 @@ const AddUser = ({ type }) => {
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 placeholder="e.g., -74.0060"
               />
-              {errors["location.long"] && <p className="text-red-500 text-xs mt-1">{errors["location.long"]}</p>}
+              {errors["location.long"] && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors["location.long"]}
+                </p>
+              )}
             </div>
 
             {/* State, City, Address */}
@@ -400,13 +463,108 @@ const AddUser = ({ type }) => {
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                   placeholder={`Enter ${field}`}
                 />
-                {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
+                {errors[field] && (
+                  <p className="text-red-500 text-xs mt-1">{errors[field]}</p>
+                )}
               </div>
             ))}
 
-            {/* Role */}
+            {/* Farm Location */}
             <div>
-              <label htmlFor="image" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="farmLocation"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Farm Location
+              </label>
+              <input
+                type="text"
+                name="farmLocation"
+                value={formData.farmLocation}
+                onChange={handleChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                placeholder="Farm location"
+              />
+              {errors.farmLocation && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.farmLocation}
+                </p>
+              )}
+            </div>
+
+            {/* Crop Type */}
+            <div>
+              <label
+                htmlFor="cropType"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Crop Type
+              </label>
+              <input
+                type="text"
+                name="cropType"
+                value={formData.cropType}
+                onChange={handleChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                placeholder="Type of crop"
+              />
+              {errors.cropType && (
+                <p className="text-red-500 text-xs mt-1">{errors.cropType}</p>
+              )}
+            </div>
+
+            {/* Soil Type */}
+            <div>
+              <label
+                htmlFor="soilType"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Soil Type
+              </label>
+              <input
+                type="text"
+                name="soilType"
+                value={formData.soilType}
+                onChange={handleChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                placeholder="Type of soil"
+              />
+              {errors.soilType && (
+                <p className="text-red-500 text-xs mt-1">{errors.soilType}</p>
+              )}
+            </div>
+
+            {/* Land Size */}
+            <div>
+              <label
+                htmlFor="landSize"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Land Size(Acres)
+              </label>
+              <input
+                type="text"
+                name="landSize"
+                value={formData.landSize}
+                onChange={handleChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                placeholder="Land size"
+              />
+              {errors.landSize && (
+                <p className="text-red-500 text-xs mt-1">{errors.landSize}</p>
+              )}
+            </div>
+
+            {/* Image */}
+            <div>
+              <label
+                htmlFor="image"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 Image
               </label>
               <input
@@ -456,8 +614,42 @@ const AddUser = ({ type }) => {
               )}
             </div>
 
+            {/* User Type */}
             <div>
-              <label htmlFor="role" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <label
+                htmlFor="userType"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                User Type
+              </label>
+              <select
+                id="userType"
+                name="userType"
+                value={formData.userType}
+                onChange={handleChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+              >
+                <option value="" disabled>
+                  Select user type
+                </option>
+                {userTypes.map((userType) => (
+                  <option key={userType.type_id} value={userType.type_id}>
+                    {userType.type_name}
+                  </option>
+                ))}
+              </select>
+              {errors.userType && (
+                <p className="text-red-500 text-xs mt-1">{errors.userType}</p>
+              )}
+            </div>
+
+            {/* Role */}
+            <div>
+              <label
+                htmlFor="role"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
                 Role
               </label>
               <select
@@ -468,26 +660,37 @@ const AddUser = ({ type }) => {
                 disabled={type === "View"}
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
               >
-                <option value="" disabled>Select role</option>
+                <option value="" disabled>
+                  Select role
+                </option>
                 {roles.map((role) => (
                   <option key={role.role_id} value={role.role_id}>
                     {role.role_name}
                   </option>
                 ))}
               </select>
-              {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+              {errors.role && (
+                <p className="text-red-500 text-xs mt-1">{errors.role}</p>
+              )}
             </div>
 
             {/* Created At (View Mode Only) */}
             {type === "View" && (
               <div className="sm:col-span-1">
-                <label htmlFor="createdAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                <label
+                  htmlFor="createdAt"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
                   Created At
                 </label>
                 <input
                   type="text"
                   name="createdAt"
-                  value={formData.createdAt ? new Date(formData.createdAt).toLocaleString() : ""}
+                  value={
+                    formData.createdAt
+                      ? new Date(formData.createdAt).toLocaleString()
+                      : ""
+                  }
                   disabled
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 />
@@ -497,13 +700,20 @@ const AddUser = ({ type }) => {
             {/* Updated At (View Mode Only) */}
             {type === "View" && (
               <div className="sm:col-span-1">
-                <label htmlFor="updatedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+                <label
+                  htmlFor="updatedAt"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
                   Updated At
                 </label>
                 <input
                   type="text"
                   name="updatedAt"
-                  value={formData.updatedAt ? new Date(formData.updatedAt).toLocaleString() : ""}
+                  value={
+                    formData.updatedAt
+                      ? new Date(formData.updatedAt).toLocaleString()
+                      : ""
+                  }
                   disabled
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 />
@@ -521,7 +731,9 @@ const AddUser = ({ type }) => {
                 size="sm"
                 className="gap-2"
               >
-                {isSubmitting && <Loader className="animate-spin w-5 h-5 mr-2" />}
+                {isSubmitting && (
+                  <Loader className="animate-spin w-5 h-5 mr-2" />
+                )}
                 {type === "Edit" ? "Update User" : "Add User"}
               </Button>
             </div>
