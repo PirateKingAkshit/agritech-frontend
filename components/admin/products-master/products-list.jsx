@@ -32,16 +32,40 @@ const ProductsList = () => {
   const [limit, setLimit] = useState(initialLimit);
   const [searchText, setSearchText] = useState("");
 
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
   const [modalType, setModalType] = useState(null); // 'delete' | 'toggle'
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
 
+  const fetchCategories = async () => {
+    try {
+      const res = await instance.get("/product-category-master");
+      if (res?.status === 200 && Array.isArray(res.data?.data)) {
+        const { data } = res.data;
+        setCategories(data || []);
+      }
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
+
   const fetchProducts = async () => {
     try {
-      const query = searchText.trim()
-        ? `/product-master?q=${searchText.trim()}`
-        : `/product-master?page=${currentPage}&limit=${limit}`;
+      const trimmedSearch = searchText.trim();
+      const isSearchMode = !!trimmedSearch || !!selectedCategory;
+      let query = "";
+
+      if (isSearchMode) {
+        const params = new URLSearchParams();
+        if (trimmedSearch) params.append("q", trimmedSearch);
+        if (selectedCategory) params.append("category", selectedCategory);
+        query = `/product-master?${params.toString()}`;
+      } else {
+        query = `/product-master?page=${currentPage}&limit=${limit}`;
+      }
 
       const response = await instance.get(query);
 
@@ -64,6 +88,10 @@ const ProductsList = () => {
   useEffect(() => {
     fetchProducts();
   }, [currentPage, limit]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -177,13 +205,9 @@ const ProductsList = () => {
         accessorKey: "category",
         cell: ({ row }) => {
           const category = row.original.category;
-
-          // If API returns populated object
           if (category && typeof category === "object") {
             return category.name;
           }
-
-          // If only objectId is returned
           return "-";
         },
       },
@@ -260,9 +284,25 @@ const ProductsList = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search by name or category or variety or season"
+              placeholder="Search by name or variety or season"
               className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
             />
+
+            {/* Category Dropdown */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full sm:w-48 border border-border rounded-lg px-3 py-2 text-sm bg-background"
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Search button */}
             <Button onClick={handleSearch} variant="default" size="sm">
               Search
             </Button>
