@@ -19,6 +19,7 @@ const EditOrderRequest = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [request, setRequest] = useState(null);
   const [status, setStatus] = useState("");
+  const [remarks, setRemarks] = useState("");
   const FileUrl = process.env.NEXT_PUBLIC_FILEURL
 
   const fetchRequest = async () => {
@@ -29,6 +30,7 @@ const EditOrderRequest = () => {
         const data = response.data?.data;
         setRequest(data);
         setStatus(data?.status || "Pending");
+        setRemarks(data?.remarks || "");
       }
     } catch (error) {
       // handled globally
@@ -45,7 +47,7 @@ const EditOrderRequest = () => {
     if (!id) return;
     setIsLoading(true);
     try {
-      const response = await instance.put(`/product-orders/${id}`, { status });
+      const response = await instance.put(`/product-orders/${id}`, { status, remarks });
       if (response?.status === 200) {
         showSuccess(response?.data?.message || "Status updated");
         router.push("/admin/order-requests");
@@ -180,6 +182,17 @@ const EditOrderRequest = () => {
                 ))}
               </select>
             </div>
+            <div className="sm:col-span-2">
+      <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-200">Remarks</label>
+      <textarea
+        type="text"
+        value={remarks}
+        onChange={(e)=>{
+          setRemarks(e.target.value)
+        }}
+        className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+      />
+    </div>
           </div>
 
           <div className="flex justify-end mt-4">

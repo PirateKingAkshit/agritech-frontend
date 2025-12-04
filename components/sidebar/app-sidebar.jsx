@@ -102,7 +102,7 @@ export function AppSidebar({ ...props }) {
       icon: Leaf,
     },
     {
-      title: "Category Master",
+      title: "Prod Category Master",
       url: "/admin/category-list",
       icon: Package,
     },

@@ -12,7 +12,7 @@ export function SiteHeader() {
     { title: "Dashboard", paths: ["/admin/dashboard"] },
     { title: "Users Master", paths: ["/admin/users-list", "/admin/add-user", "/admin/edit-user", "/admin/view-user"] },
     { title: "Crops Master", paths: ["/admin/crops-list", "/admin/add-crops", "/admin/edit-crops", "/admin/view-crops"] },
-    { title: "Category Master", paths: ["/admin/category-list", "/admin/add-category", "/admin/edit-category", "/admin/view-category"] },
+    { title: "Product Category Master", paths: ["/admin/category-list", "/admin/add-category", "/admin/edit-category", "/admin/view-category"] },
     { title: "Products Master", paths: ["/admin/products-list", "/admin/add-products", "/admin/edit-products", "/admin/view-products"] },
     { title: "Govt Schemes Master", paths: ["/admin/list-schemes", "/admin/add-schemes", "/admin/edit-schemes", "/admin/view-schemes"] },
     { title: "Media Master", paths: ["/admin/media-master"] },
