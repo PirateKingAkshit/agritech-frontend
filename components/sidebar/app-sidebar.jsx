@@ -36,6 +36,11 @@ const data = {
       icon: Leaf,
     },
     {
+      title: "Category Master",
+      url: "/admin/category-list",
+      icon: Package,
+    },
+    {
       title: "Product Master",
       url: "/admin/products-list",
       icon: Package,
@@ -95,6 +100,11 @@ export function AppSidebar({ ...props }) {
       title: "Crop Master",
       url: "/admin/crops-list",
       icon: Leaf,
+    },
+    {
+      title: "Prod Category Master",
+      url: "/admin/category-list",
+      icon: Package,
     },
     {
       title: "Product Master",

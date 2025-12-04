@@ -2,7 +2,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, Edit, Trash, LucideToggleLeft, LucideToggleRight } from "lucide-react";
+import {
+  Eye,
+  Edit,
+  Trash,
+  LucideToggleLeft,
+  LucideToggleRight,
+} from "lucide-react";
 import { IconPlus } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/confirmation-modal";
@@ -26,16 +32,40 @@ const ProductsList = () => {
   const [limit, setLimit] = useState(initialLimit);
   const [searchText, setSearchText] = useState("");
 
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
   const [modalType, setModalType] = useState(null); // 'delete' | 'toggle'
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const FileUrl = process.env.NEXT_PUBLIC_FILEURL;
 
+  const fetchCategories = async () => {
+    try {
+      const res = await instance.get("/product-category-master");
+      if (res?.status === 200 && Array.isArray(res.data?.data)) {
+        const { data } = res.data;
+        setCategories(data || []);
+      }
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
+
   const fetchProducts = async () => {
     try {
-      const query = searchText.trim()
-        ? `/product-master?q=${searchText.trim()}`
-        : `/product-master?page=${currentPage}&limit=${limit}`;
+      const trimmedSearch = searchText.trim();
+      const isSearchMode = !!trimmedSearch || !!selectedCategory;
+      let query = "";
+
+      if (isSearchMode) {
+        const params = new URLSearchParams();
+        if (trimmedSearch) params.append("q", trimmedSearch);
+        if (selectedCategory) params.append("category", selectedCategory);
+        query = `/product-master?${params.toString()}`;
+      } else {
+        query = `/product-master?page=${currentPage}&limit=${limit}`;
+      }
 
       const response = await instance.get(query);
 
@@ -59,6 +89,10 @@ const ProductsList = () => {
     fetchProducts();
   }, [currentPage, limit]);
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const handleSearch = () => {
     setCurrentPage(1);
     router.push(`?page=1&limit=${limit}`);
@@ -71,13 +105,13 @@ const ProductsList = () => {
 
   const openDeleteModal = (id) => {
     setSelectedProduct({ id });
-    setModalType('delete');
+    setModalType("delete");
     setIsModalOpen(true);
   };
 
   const openToggleModal = (product) => {
     setSelectedProduct(product);
-    setModalType('toggle');
+    setModalType("toggle");
     setIsModalOpen(true);
   };
 
@@ -89,7 +123,9 @@ const ProductsList = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await instance.delete(`/product-master/${selectedProduct.id}`);
+      const response = await instance.delete(
+        `/product-master/${selectedProduct.id}`
+      );
       if (response?.status === 200) {
         showSuccess(response?.data?.message);
         fetchProducts();
@@ -143,7 +179,7 @@ const ProductsList = () => {
         cell: ({ getValue }) => {
           const imagePath = getValue()?.replace(/\\/g, "/"); // Ensure URL uses forward slashes
           const imageUrl = `${FileUrl}${imagePath}`;
-      
+
           return (
             <div className="relative w-10 h-10">
               <Image
@@ -158,18 +194,42 @@ const ProductsList = () => {
         },
       },
       { header: "Unit", accessorKey: "unit" },
-      { header: "Price", accessorKey: "price", cell: ({ getValue }) => `₹ ${getValue()}` },
-      { header: "Category", accessorKey: "category" },
+      {
+        header: "Price",
+        accessorKey: "price",
+        cell: ({ getValue }) => `₹ ${getValue()}`,
+      },
+      // { header: "Category", accessorKey: "category" },
+      {
+        header: "Category",
+        accessorKey: "category",
+        cell: ({ row }) => {
+          const category = row.original.category;
+          if (category && typeof category === "object") {
+            return category.name;
+          }
+          return "-";
+        },
+      },
       {
         header: "Status",
         accessorKey: "isActive",
-        cell: ({ getValue }) => (
+        cell: ({ getValue }) =>
           getValue() ? (
-            <Badge variant="default" className="bg-primary text-primary-foreground">Active</Badge>
+            <Badge
+              variant="default"
+              className="bg-primary text-primary-foreground"
+            >
+              Active
+            </Badge>
           ) : (
-            <Badge variant="secondary" className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]">Inactive</Badge>
-          )
-        ),
+            <Badge
+              variant="secondary"
+              className="border border-[color:oklch(0.52_0.08_60)] text-[color:oklch(0.3_0.035_40)]"
+            >
+              Inactive
+            </Badge>
+          ),
       },
     ],
     []
@@ -196,10 +256,14 @@ const ProductsList = () => {
         className="text-green-600 hover:text-green-800 cursor-pointer"
         title={product.isActive ? "Inactive" : "Active"}
       >
-        {product.isActive ? <LucideToggleRight size={16} /> : <LucideToggleLeft size={16} />}
+        {product.isActive ? (
+          <LucideToggleRight size={16} />
+        ) : (
+          <LucideToggleLeft size={16} />
+        )}
       </button>
       <button
-          onClick={() => openDeleteModal(product._id)}
+        onClick={() => openDeleteModal(product._id)}
         className="text-red-600 hover:text-red-800 cursor-pointer"
         title="Delete"
       >
@@ -220,9 +284,25 @@ const ProductsList = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search by name or category or variety or season"
+              placeholder="Search by name or variety or season"
               className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
             />
+
+            {/* Category Dropdown */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full sm:w-48 border border-border rounded-lg px-3 py-2 text-sm bg-background"
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Search button */}
             <Button onClick={handleSearch} variant="default" size="sm">
               Search
             </Button>
@@ -230,11 +310,7 @@ const ProductsList = () => {
 
           {/* Add Button */}
           <Link href="/admin/add-products">
-            <Button
-              variant="default"
-              size="sm"
-              className="gap-2"
-            >
+            <Button variant="default" size="sm" className="gap-2">
               <IconPlus size={16} />
               <span className="hidden sm:inline">Add Product</span>
             </Button>
@@ -269,30 +345,40 @@ const ProductsList = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         onConfirm={
-          modalType === 'delete' ? handleDelete :
-          modalType === 'toggle' ? handleToggleStatus :
-          undefined
+          modalType === "delete"
+            ? handleDelete
+            : modalType === "toggle"
+            ? handleToggleStatus
+            : undefined
         }
         title={
-          modalType === 'delete' ? 'Confirm Deletion' :
-          modalType === 'toggle' && selectedProduct ? (selectedProduct.isActive ? 'Disable Product' : 'Enable Product') :
-          ''
+          modalType === "delete"
+            ? "Confirm Deletion"
+            : modalType === "toggle" && selectedProduct
+            ? selectedProduct.isActive
+              ? "Disable Product"
+              : "Enable Product"
+            : ""
         }
         description={
-          modalType === 'delete' ? 'Are you sure you want to delete this product? This action cannot be undone.' :
-          modalType === 'toggle' && selectedProduct ? (
-            selectedProduct.isActive
-              ? 'Are you sure you want to disable this product? You can enable it again later.'
-              : 'Are you sure you want to enable this product?'
-          ) :
-          ''
+          modalType === "delete"
+            ? "Are you sure you want to delete this product? This action cannot be undone."
+            : modalType === "toggle" && selectedProduct
+            ? selectedProduct.isActive
+              ? "Are you sure you want to disable this product? You can enable it again later."
+              : "Are you sure you want to enable this product?"
+            : ""
         }
         confirmButtonText={
-          modalType === 'delete' ? 'Delete' :
-          modalType === 'toggle' && selectedProduct ? (selectedProduct.isActive ? 'Disable' : 'Enable') :
-          ''
+          modalType === "delete"
+            ? "Delete"
+            : modalType === "toggle" && selectedProduct
+            ? selectedProduct.isActive
+              ? "Disable"
+              : "Enable"
+            : ""
         }
-        confirmButtonVariant={modalType === 'delete' ? 'outline' : 'outline'}
+        confirmButtonVariant={modalType === "delete" ? "outline" : "outline"}
       />
     </div>
   );
