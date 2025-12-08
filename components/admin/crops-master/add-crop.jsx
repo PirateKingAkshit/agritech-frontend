@@ -30,18 +30,28 @@ const AddCrop = ({ type }) => {
   });
 
   const [errors, setErrors] = useState({});
+  const [parentCrops, setParentCrops] = useState([]);
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name cannot be empty";
-    if (!formData.category.trim()) newErrors.category = "Category cannot be empty";
-    if (!formData.description.trim()) newErrors.description = "Description cannot be empty";
-    if (!formData.variety.trim()) newErrors.variety = "Variety cannot be empty";
-    if (!formData.season.trim()) newErrors.season = "Season cannot be empty";
+    // Only name is required
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    // All other fields are optional
     if (formData.image && formData.image.size > 2 * 1024 * 1024) {
       newErrors.image = "Image size should not exceed 2MB";
     }
     return newErrors;
+  };
+
+  const fetchParentCrops = async () => {
+    try {
+      const response = await instance.get("/crop-master/parent-crops");
+      if (response?.status === 200) {
+        setParentCrops(response.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching parent crops:", error);
+    }
   };
 
   const handleChange = (e) => {
@@ -109,7 +119,7 @@ const AddCrop = ({ type }) => {
       if (response.data?.data) {
         const crop = response.data.data;
         setFormData({
-          category: crop.category || "",
+          category: crop.category?._id || "",
           description: crop.description || "",
           name: crop.name || "",
           variety: crop.variety || "",
@@ -129,7 +139,7 @@ const AddCrop = ({ type }) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
-      showWarning("Please fill all the required fields");
+      showError("Please fill all the required fields");
       setErrors(validationErrors);
       return;
     }
@@ -140,6 +150,10 @@ const AddCrop = ({ type }) => {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "image" && typeof value === "string") return;
+        if (key === "category" && value === "") {
+          // Don't add category if it's empty (null category)
+          return;
+        }
         formDataToSend.append(key, value);
       });
 
@@ -156,6 +170,8 @@ const AddCrop = ({ type }) => {
           newErrors[err.field] = err.message;
         });
         setErrors(newErrors);
+      } else {
+        showError(error?.response?.data?.message || "Failed to add crop");
       }
     } finally {
       setIsSubmitting(false);
@@ -176,6 +192,10 @@ const AddCrop = ({ type }) => {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "image" && typeof value === "string") return;
+        if (key === "category" && value === "") {
+          // Don't add category if it's empty (null category)
+          return;
+        }
         formDataToSend.append(key, value);
       });
 
@@ -192,11 +212,17 @@ const AddCrop = ({ type }) => {
           newErrors[err.field] = err.message;
         });
         setErrors(newErrors);
+      } else {
+        showError(error?.response?.data?.message || "Failed to update crop");
       }
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    fetchParentCrops();
+  }, []);
 
   useEffect(() => {
     if ((type === "Edit" || type === "View") && id) {
@@ -254,23 +280,28 @@ const AddCrop = ({ type }) => {
               )}
             </div>
 
-            {/* Category*/}
+            {/* Category - Now a dropdown */}
             <div>
               <label
                 htmlFor="category"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Category *
+                Category
               </label>
-              <input
-                type="text"
+              <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
                 disabled={type === "View"}
                 className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
-                placeholder="Category"
-              />
+              >
+                <option value="">None (Parent Crop)</option>
+                {parentCrops.map((crop) => (
+                  <option key={crop._id} value={crop._id}>
+                    {crop.name}
+                  </option>
+                ))}
+              </select>
               {errors.category && (
                 <p className="text-red-500 text-xs mt-1">{errors.category}</p>
               )}
@@ -282,7 +313,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="description"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Description *
+                Description
               </label>
               <textarea
                 name="description"
@@ -306,7 +337,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="variety"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Variety *
+                Variety
               </label>
               <input
                 type="text"
@@ -328,7 +359,7 @@ const AddCrop = ({ type }) => {
                 htmlFor="season"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
               >
-                Season *
+                Season
               </label>
               <input
                 type="text"
@@ -396,35 +427,49 @@ const AddCrop = ({ type }) => {
               )}
             </div>
             {type === "View" && (
-            <div>
-              <label htmlFor="createdAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <div>
+                <label
+                  htmlFor="createdAt"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
                   Created At
                 </label>
                 <input
                   type="text"
                   name="createdAt"
-                  value={formData.createdAt ? new Date(formData.createdAt).toLocaleString() : ""}
+                  value={
+                    formData.createdAt
+                      ? new Date(formData.createdAt).toLocaleString()
+                      : ""
+                  }
                   disabled
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 />
-            </div>
+              </div>
             )}
             {type === "View" && (
-            <div>
-             <label htmlFor="updatedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+              <div>
+                <label
+                  htmlFor="updatedAt"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
                   Updated At
                 </label>
                 <input
                   type="text"
                   name="updatedAt"
-                  value={formData.updatedAt ? new Date(formData.updatedAt).toLocaleString() : ""}
+                  value={
+                    formData.updatedAt
+                      ? new Date(formData.updatedAt).toLocaleString()
+                      : ""
+                  }
                   disabled
                   className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
                 />
-            </div>
+              </div>
             )}
           </div>
-          
+
           {type !== "View" && (
             <div className="flex justify-end mt-4">
               <Button

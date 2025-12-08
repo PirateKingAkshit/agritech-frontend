@@ -2,7 +2,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, Edit, Trash, LucideToggleLeft, LucideToggleRight } from "lucide-react";
+import {
+  Eye,
+  Edit,
+  Trash,
+  LucideToggleLeft,
+  LucideToggleRight,
+} from "lucide-react";
 import { IconPlus } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/confirmation-modal";
@@ -71,13 +77,13 @@ const CropsList = () => {
 
   const openDeleteModal = (id) => {
     setSelectedCrop({ id });
-    setModalType('delete');
+    setModalType("delete");
     setIsModalOpen(true);
   };
 
   const openToggleModal = (crop) => {
     setSelectedCrop(crop);
-    setModalType('toggle');
+    setModalType("toggle");
     setIsModalOpen(true);
   };
 
@@ -138,7 +144,8 @@ const CropsList = () => {
         accessorKey: "image",
         cell: ({ getValue }) => {
           const value = getValue();
-          const imagePath = value === "null" ? null : value?.replace(/\\/g, "/"); // Ensure forward slashes
+          const imagePath =
+            value === "null" ? null : value?.replace(/\\/g, "/"); // Ensure forward slashes
           const imageUrl = imagePath
             ? `${FileUrl}${imagePath}`
             : "/default.png";
@@ -156,7 +163,18 @@ const CropsList = () => {
           );
         },
       },
-      { header: "Category", accessorKey: "category" },
+      {
+        header: "Parent Item",
+        accessorKey: "category",
+        cell: ({ getValue }) => {
+          const category = getValue();
+          return category ? (
+            category.name
+          ) : (
+            <span className="text-gray-500 italic"></span>
+          );
+        },
+      },
       { header: "Variety", accessorKey: "variety" },
       { header: "Season", accessorKey: "season" },
       {
@@ -204,7 +222,11 @@ const CropsList = () => {
         className="text-green-600 hover:text-green-800 cursor-pointer"
         title={crop.isActive ? "Inactive" : "Active"}
       >
-        {crop.isActive ? <LucideToggleRight size={16} /> : <LucideToggleLeft size={16} />}
+        {crop.isActive ? (
+          <LucideToggleRight size={16} />
+        ) : (
+          <LucideToggleLeft size={16} />
+        )}
       </button>
       <button
         onClick={() => openDeleteModal(crop._id)}
@@ -238,11 +260,7 @@ const CropsList = () => {
 
           {/* Add Button */}
           <Link href="/admin/add-crops">
-            <Button
-              variant="default"
-              size="sm"
-              className="gap-2"
-            >
+            <Button variant="default" size="sm" className="gap-2">
               <IconPlus size={16} />
               <span className="hidden sm:inline">Add Crop</span>
             </Button>
@@ -277,30 +295,40 @@ const CropsList = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         onConfirm={
-          modalType === 'delete' ? handleDelete :
-          modalType === 'toggle' ? handleToggleStatus :
-          undefined
+          modalType === "delete"
+            ? handleDelete
+            : modalType === "toggle"
+            ? handleToggleStatus
+            : undefined
         }
         title={
-          modalType === 'delete' ? 'Confirm Deletion' :
-          modalType === 'toggle' && selectedCrop ? (selectedCrop.isActive ? 'Disable Crop' : 'Enable Crop') :
-          ''
+          modalType === "delete"
+            ? "Confirm Deletion"
+            : modalType === "toggle" && selectedCrop
+            ? selectedCrop.isActive
+              ? "Disable Crop"
+              : "Enable Crop"
+            : ""
         }
         description={
-          modalType === 'delete' ? 'Are you sure you want to delete this crop? This action cannot be undone.' :
-          modalType === 'toggle' && selectedCrop ? (
-            selectedCrop.isActive
-              ? 'Are you sure you want to disable this crop? You can enable it again later.'
-              : 'Are you sure you want to enable this crop?'
-          ) :
-          ''
+          modalType === "delete"
+            ? "Are you sure you want to delete this crop? This action cannot be undone."
+            : modalType === "toggle" && selectedCrop
+            ? selectedCrop.isActive
+              ? "Are you sure you want to disable this crop? You can enable it again later."
+              : "Are you sure you want to enable this crop?"
+            : ""
         }
         confirmButtonText={
-          modalType === 'delete' ? 'Delete' :
-          modalType === 'toggle' && selectedCrop ? (selectedCrop.isActive ? 'Disable' : 'Enable') :
-          ''
+          modalType === "delete"
+            ? "Delete"
+            : modalType === "toggle" && selectedCrop
+            ? selectedCrop.isActive
+              ? "Disable"
+              : "Enable"
+            : ""
         }
-        confirmButtonVariant={modalType === 'delete' ? 'outline' : 'outline'}
+        confirmButtonVariant={modalType === "delete" ? "outline" : "outline"}
       />
     </div>
   );
