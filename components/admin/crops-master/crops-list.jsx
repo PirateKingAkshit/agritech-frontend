@@ -149,7 +149,6 @@ const CropsList = () => {
           const imageUrl = imagePath
             ? `${FileUrl}${imagePath}`
             : "/default.png";
-          console.log("Image URL:", imageUrl); // Debugging line
           return (
             <div className="relative w-10 h-10">
               <Image
@@ -175,8 +174,8 @@ const CropsList = () => {
           );
         },
       },
-      { header: "Variety", accessorKey: "variety" },
-      { header: "Season", accessorKey: "season" },
+      { header: "Max Price", accessorKey: "max_price" },
+      { header: "Min Price", accessorKey: "min_price" },
       {
         header: "Status",
         accessorKey: "isActive",

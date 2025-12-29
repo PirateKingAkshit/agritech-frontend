@@ -24,6 +24,8 @@ const AddCrop = ({ type }) => {
     name: "",
     variety: "",
     season: "",
+    max_price: 0,
+    min_price: 0,
     image: null,
     createdAt: "",
     updatedAt: "",
@@ -40,6 +42,24 @@ const AddCrop = ({ type }) => {
     if (formData.image && formData.image.size > 2 * 1024 * 1024) {
       newErrors.image = "Image size should not exceed 2MB";
     }
+    // ❌ No negative prices
+  if (formData.min_price < 0) {
+    newErrors.min_price = "Min price cannot be negative";
+  }
+
+  if (formData.max_price < 0) {
+    newErrors.max_price = "Max price cannot be negative";
+  }
+
+  // ❌ Min > Max
+  if (
+    formData.min_price !== "" &&
+    formData.max_price !== "" &&
+    Number(formData.min_price) > Number(formData.max_price)
+  ) {
+    newErrors.min_price = "Min price cannot be greater than max price";
+    newErrors.max_price = "Max price must be greater than min price";
+  }
     return newErrors;
   };
 
@@ -56,10 +76,18 @@ const AddCrop = ({ type }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // block negatives for price fields
+    if ((name === "min_price" || name === "max_price") && value !== "") {
+      const num = Number(value);
+      if (Number.isNaN(num) || num < 0) return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -124,6 +152,8 @@ const AddCrop = ({ type }) => {
           name: crop.name || "",
           variety: crop.variety || "",
           season: crop.season || "",
+          max_price: crop.max_price || 0,
+          min_price: crop.min_price || 0,
           image: crop.image || null,
           createdAt: crop.createdAt || "",
           updatedAt: crop.updatedAt || "",
@@ -372,6 +402,58 @@ const AddCrop = ({ type }) => {
               />
               {errors.season && (
                 <p className="text-red-500 text-xs mt-1">{errors.season}</p>
+              )}
+            </div>
+
+            {/* Max Price */}
+            <div>
+              <label
+                htmlFor="max_price"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Max Price
+              </label>
+              <input
+                type="number"
+                min={0}
+                name="max_price"
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault();
+                }}
+                value={formData.max_price}
+                onChange={handleChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                placeholder="max_price"
+              />
+              {errors.max_price && (
+                <p className="text-red-500 text-xs mt-1">{errors.max_price}</p>
+              )}
+            </div>
+
+            {/* Min Price */}
+            <div>
+              <label
+                htmlFor="min_price"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Min Price
+              </label>
+              <input
+                type="number"
+                name="min_price"
+                min={0}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault();
+                }}
+                value={formData.min_price}
+                onChange={handleChange}
+                disabled={type === "View"}
+                className="w-full border border-border rounded px-3 py-2 text-sm bg-background dark:text-gray-200"
+                placeholder="min_price"
+              />
+              {errors.min_price && (
+                <p className="text-red-500 text-xs mt-1">{errors.min_price}</p>
               )}
             </div>
 

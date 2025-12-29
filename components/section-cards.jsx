@@ -2,7 +2,15 @@
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Leaf, Package, Landmark, PlayCircle, ShoppingCart, ShoppingBasket } from "lucide-react";
+import {
+  Leaf,
+  Package,
+  Landmark,
+  PlayCircle,
+  ShoppingCart,
+  ShoppingBasket,
+} from "lucide-react";
+import Link from "next/link";
 
 export function SectionCards({ stats, loading }) {
   const metrics = {
@@ -15,12 +23,42 @@ export function SectionCards({ stats, loading }) {
   };
 
   const items = [
-    { label: "Total Crops", value: metrics.crops, icon: Leaf },
-    { label: "Total Products", value: metrics.products, icon: Package },
-    { label: "Govt. Schemes", value: metrics.governmentSchemes, icon: Landmark },
-    { label: "Tutorials", value: metrics.tutorials, icon: PlayCircle },
-    { label: "Crop Sale Requests", value: metrics.cropSaleRequests, icon: ShoppingBasket },
-    { label: "Product Order Requests", value: metrics.productOrderRequests, icon: ShoppingCart },
+    {
+      label: "Total Crops",
+      value: metrics.crops,
+      icon: Leaf,
+      link: "/admin/crops-list",
+    },
+    {
+      label: "Total Products",
+      value: metrics.products,
+      icon: Package,
+      link: "/admin/products-list",
+    },
+    {
+      label: "Govt. Schemes",
+      value: metrics.governmentSchemes,
+      icon: Landmark,
+      link: "/admin/list-schemes",
+    },
+    {
+      label: "Tutorials",
+      value: metrics.tutorials,
+      icon: PlayCircle,
+      link: "/admin/tutorials-list",
+    },
+    {
+      label: "Crop Sale Requests",
+      value: metrics.cropSaleRequests,
+      icon: ShoppingBasket,
+      link: "/admin/sale-requests",
+    },
+    {
+      label: "Product Order Requests",
+      value: metrics.productOrderRequests,
+      icon: ShoppingCart,
+      link: "/admin/order-requests",
+    },
   ];
 
   return (
@@ -28,26 +66,30 @@ export function SectionCards({ stats, loading }) {
       {items.map((item) => {
         const Icon = item.icon;
         return (
-          <Card
-            key={item.label}
-            className="p-5 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <CardHeader className="p-0 space-y-4">
-              {/* Label row */}
-              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                <Icon className="w-5 h-5" />
-                <CardTitle className="text-sm font-medium">{item.label}</CardTitle>
-              </div>
-              {/* Value */}
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {loading ? (
-                  <Skeleton className="h-8 w-20 rounded-md" />
-                ) : (
-                  item.value.toLocaleString()
-                )}
-              </div>
-            </CardHeader>
-          </Card>
+          <Link href={item.link}>
+            <Card
+              key={item.label}
+              className="p-5 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            >
+              <CardHeader className="p-0 space-y-4">
+                {/* Label row */}
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                  <Icon className="w-5 h-5" />
+                  <CardTitle className="text-sm font-medium">
+                    {item.label}
+                  </CardTitle>
+                </div>
+                {/* Value */}
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {loading ? (
+                    <Skeleton className="h-8 w-20 rounded-md" />
+                  ) : (
+                    item.value.toLocaleString()
+                  )}
+                </div>
+              </CardHeader>
+            </Card>
+          </Link>
         );
       })}
     </div>
