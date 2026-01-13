@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import "react-quill-new/dist/quill.snow.css";
 import { languages } from "@/lib/languages";
+import { toYouTubeEmbedUrl } from "@/lib/utils";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -52,7 +53,7 @@ const AddTutorial = ({ type }) => {
   const [formData, setFormData] = useState({
     name: "",
     language: "",
-    description: "",
+    descriptionWeb: "",
     image: null,
     createdAt: "",
     updatedAt: "",
@@ -177,9 +178,9 @@ const AddTutorial = ({ type }) => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Name cannot be empty";
     if (!formData.language) newErrors.language = "Language is required";
-    if (!formData.description.trim()) newErrors.description = "Description cannot be empty";
-    if (/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(formData.description)) {
-      newErrors.description = "Description contains illegal <script> tags";
+    if (!formData.descriptionWeb.trim()) newErrors.descriptionWeb = "Description cannot be empty";
+    if (/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(formData.descriptionWeb)) {
+      newErrors.descriptionWeb = "Description contains illegal <script> tags";
     }
     return newErrors;
   };
@@ -196,9 +197,9 @@ const AddTutorial = ({ type }) => {
   const handleDescriptionChange = (value) => {
     setFormData((prev) => ({
       ...prev,
-      description: value,
+      descriptionWeb: value,
     }));
-    setErrors((prev) => ({ ...prev, description: "" }));
+    setErrors((prev) => ({ ...prev, descriptionWeb: "" }));
   };
 
   const handleEmbedMedia = async (media) => {
@@ -250,30 +251,33 @@ const AddTutorial = ({ type }) => {
   };
 
   const handleEmbedUrl = () => {
-    if (!embedUrl || !/^https?:\/\/.+/.test(embedUrl)) {
-      setEmbedError("Please enter a valid URL.");
-      return;
-    }
+  const embed = toYouTubeEmbedUrl(embedUrl);
 
-    const quill = quillRef.current?.getEditor();
-    quill.focus(); // Ensure editor is focused
-    let range = quill.getSelection(true);
-    if (!quill || range === null) {
-      showError("Editor is not ready. Please try again.");
-      // Fallback: insert at the end of the content
-      range = { index: quill.getLength() };
-    }
+  if (!embed) {
+    setEmbedError("Paste a valid YouTube share or embed URL");
+    return;
+  }
 
-    quill.insertEmbed(range.index, "iframe", { url: embedUrl }, "user");
-    quill.insertText(range.index + 1, "\n", "user");
-    quill.insertEmbed(range.index + 2, "block", "<p><br></p>", "user");
-    const silent = quillLibRef.current?.sources?.SILENT || "silent";
-    quill.setSelection(range.index + 3, silent);
+  const quill = quillRef.current?.getEditor();
+  quill.focus();
 
-    setIsEmbedModalOpen(false);
-    setEmbedUrl("");
-    setEmbedError("");
-  };
+  let range = quill.getSelection(true);
+  if (!range) range = { index: quill.getLength() };
+
+  // 🔥 Always insert EMBED iframe
+  quill.insertEmbed(range.index, "iframe", { url: embed }, "user");
+
+  quill.insertText(range.index + 1, "\n", "user");
+  quill.insertEmbed(range.index + 2, "block", "<p><br></p>", "user");
+
+  const silent = quillLibRef.current?.sources?.SILENT || "silent";
+  quill.setSelection(range.index + 3, silent);
+
+  setIsEmbedModalOpen(false);
+  setEmbedUrl("");
+  setEmbedError("");
+};
+
 
   const getTutorial = async (id) => {
     try {
@@ -283,7 +287,7 @@ const AddTutorial = ({ type }) => {
         setFormData({
           name: tutorial.name || "",
           language: tutorial.language || "",
-          description: tutorial.description || "",
+          descriptionWeb: tutorial.descriptionWeb || "",
           image: tutorial.image || null,
           createdAt: tutorial.createdAt || "",
           updatedAt: tutorial.updatedAt || "",
@@ -317,43 +321,53 @@ const AddTutorial = ({ type }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      showError("Please fill all required fields correctly");
-      return;
-    }
-    setErrors({});
-    setIsSubmitting(true);
+  e.preventDefault();
 
-    try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "image" && typeof value === "string") return;
-        formDataToSend.append(key, value);
-      });
-      const response = await instance.post("/tutorial-master/", formDataToSend);
-      if (response?.status === 200) {
-        showSuccess(response?.data?.message || "Tutorial added successfully");
-        router.push("/admin/tutorials-list");
-      }
-    } catch (error) {
-      const backendErrors = error?.response?.data?.error?.errors;
-      if (backendErrors && Array.isArray(backendErrors)) {
-        const newErrors = {};
-        backendErrors.forEach((err) => {
-          newErrors[err.field] = err.message;
-        });
-        setErrors(newErrors);
-        showError("Validation failed");
-      } else {
-        showError(error?.response?.data?.message || "Failed to add tutorial");
-      }
-    } finally {
-      setIsSubmitting(false);
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    showError("Please fill all required fields correctly");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const formDataToSend = new FormData();
+
+    // ✅ Send only required fields
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("language", formData.language);
+    formDataToSend.append("descriptionWeb", formData.descriptionWeb);
+
+    if (formData.image instanceof File) {
+      formDataToSend.append("image", formData.image);
     }
-  };
+
+    const response = await instance.post("/tutorial-master/", formDataToSend);
+
+    if (response?.status === 200) {
+      showSuccess(response?.data?.message || "Tutorial added successfully");
+      router.push("/admin/tutorials-list");
+    }
+  } catch (error) {
+    const backendErrors = error?.response?.data?.error?.errors;
+
+    if (Array.isArray(backendErrors)) {
+      const newErrors = {};
+      backendErrors.forEach((err) => {
+        newErrors[err.field] = err.message;
+      });
+      setErrors(newErrors);
+      showError("Validation failed");
+    } else {
+      showError(error?.response?.data?.message || "Failed to add tutorial");
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -406,43 +420,56 @@ const AddTutorial = ({ type }) => {
   };
 
   const handleUpdate = async (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      showError("Please fill all required fields correctly");
-      return;
-    }
-    setErrors({});
-    setIsSubmitting(true);
+  e.preventDefault();
 
-    try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "image" && typeof value === "string") return;
-        formDataToSend.append(key, value);
-      });
-      const response = await instance.put(`/tutorial-master/${id}`, formDataToSend);
-      if (response?.status === 200) {
-        showSuccess(response?.data?.message || "Tutorial updated successfully");
-        router.push("/admin/tutorials-list");
-      }
-    } catch (error) {
-      const backendErrors = error?.response?.data?.error?.errors;
-      if (backendErrors && Array.isArray(backendErrors)) {
-        const newErrors = {};
-        backendErrors.forEach((err) => {
-          newErrors[err.field] = err.message;
-        });
-        setErrors(newErrors);
-        showError("Validation failed");
-      } else {
-        showError(error?.response?.data?.message || "Failed to update tutorial");
-      }
-    } finally {
-      setIsSubmitting(false);
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    showError("Please fill all required fields correctly");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const formDataToSend = new FormData();
+
+    // ✅ Explicit fields only
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("language", formData.language);
+    formDataToSend.append("descriptionWeb", formData.descriptionWeb);
+
+    if (formData.image instanceof File) {
+      formDataToSend.append("image", formData.image);
     }
-  };
+
+    const response = await instance.put(
+      `/tutorial-master/${id}`,
+      formDataToSend
+    );
+
+    if (response?.status === 200) {
+      showSuccess(response?.data?.message || "Tutorial updated successfully");
+      router.push("/admin/tutorials-list");
+    }
+  } catch (error) {
+    const backendErrors = error?.response?.data?.error?.errors;
+
+    if (Array.isArray(backendErrors)) {
+      const newErrors = {};
+      backendErrors.forEach((err) => {
+        newErrors[err.field] = err.message;
+      });
+      setErrors(newErrors);
+      showError("Validation failed");
+    } else {
+      showError(error?.response?.data?.message || "Failed to update tutorial");
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   useEffect(() => {
     if ((type === "Edit" || type === "View") && id) {
@@ -680,7 +707,7 @@ const AddTutorial = ({ type }) => {
                 <div
                   className="ql-editor border border-border rounded p-2 bg-background dark:text-gray-200"
                   style={{ minHeight: "200px" }}
-                  dangerouslySetInnerHTML={{ __html: formData.description }}
+                  dangerouslySetInnerHTML={{ __html: formData.descriptionWeb }}
                 />
               ) : (
                 <>
@@ -713,7 +740,7 @@ const AddTutorial = ({ type }) => {
                   </div>
                   <ReactQuill
                     ref={quillRef}
-                    value={formData.description}
+                    value={formData.descriptionWeb}
                     onChange={handleDescriptionChange}
                     modules={quillModules}
                     formats={quillFormats}
@@ -723,8 +750,8 @@ const AddTutorial = ({ type }) => {
                   />
                 </>
               )}
-              {errors.description && (
-                <p className="text-red-500 text-xs mt-1">{errors.description}</p>
+              {errors.descriptionWeb && (
+                <p className="text-red-500 text-xs mt-1">{errors.descriptionWeb}</p>
               )}
             </div>
             {type === "View" && (
@@ -893,7 +920,7 @@ const AddTutorial = ({ type }) => {
                 setEmbedUrl(e.target.value);
                 setEmbedError("");
               }}
-              placeholder="https://www.youtube.com/embed/..."
+              placeholder="Paste YouTube share or embed URL"
             />
             {embedError && (
               <p className="text-red-500 text-xs">{embedError}</p>

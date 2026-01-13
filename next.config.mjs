@@ -23,6 +23,11 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "agritech.cybermatrixsolutions.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "stocksight.in",
         pathname: "/**",
       },
