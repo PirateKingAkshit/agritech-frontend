@@ -31,6 +31,17 @@ const nextConfig = {
         hostname: "stocksight.in",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "webapi.ampivo.green",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "72.62.246.54",
+        port: "5000", // or your dev port
+        pathname: "/**",
+      },
     ],
   },
 
