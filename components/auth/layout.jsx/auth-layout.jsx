@@ -17,13 +17,24 @@ export default function AuthLayout({ children }) {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <div className="flex justify-center mb-6">
-              <Link href="/" className="flex items-center gap-2 font-medium">
-                <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                  <LucideVegan className="size-4" />
-                </div>
-                AgriTech
-              </Link>
+            <div className="flex justify-center mb-8 md:mb-10">
+              {/* <div className="relative size-20 sm:size-24 rounded-full overflow-hidden shadow-xl">
+                <Image
+                  src="/logo-agritech.png"
+                  alt="AGGROW Logo"
+                  fill
+                  sizes="(max-width: 640px) 80px, 96px"
+                  className="object-contain p-0.5 drop-shadow-md"
+                  priority
+                  quality={95}
+                />
+              </div> */}
+              <img
+                src="/logo-agritech.png"
+                alt="AGGROW Logo"
+                className="h-20 sm:h-24 w-auto drop-shadow-md"
+                priority
+              />
             </div>
             {children}
           </div>
