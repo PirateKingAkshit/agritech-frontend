@@ -12,7 +12,7 @@ export default function Privacy() {
                 className="h-10 w-auto"
               />
               <span className="text-lg font-semibold text-primary hidden sm:block">
-                AGGROW
+                AgGrow
               </span>
             </div>
             <div className="text-sm text-muted-foreground">Terms of Use</div>
@@ -28,13 +28,13 @@ export default function Privacy() {
               TERMS OF USE
             </h1>
             <p className="text-base font-semibold text-foreground">
-              AGGROW Mobile Application
+              AgGrow Mobile Application
             </p>
             <p className="text-sm text-muted-foreground font-medium">
               Provided by Bartronics India Limited
             </p>
             <p className="text-sm text-foreground font-semibold pt-2">
-              Effective Date: February, 2026
+              Effective Date: 12 February, 2026
             </p>
           </div>
         </div>
@@ -49,7 +49,7 @@ export default function Privacy() {
           </h2>
           <div className="space-y-4 text-justify">
             <p>
-              AGGROW ("App") is an enterprise-focused agriculture technology
+              AgGrow ("App") is an enterprise-focused agriculture technology
               platform owned and operated by Bartronics India Limited, a company
               incorporated under the laws of India ("Company", "we", "our", or
               "us").
@@ -57,13 +57,13 @@ export default function Privacy() {
             <p>
               The App provides digital solutions including but not limited to
               agricultural management tools, analytics, advisory services,
-              enterprise dashboards, farm data tracking, reporting tools,
+              enterprise dashboards, farm data tracking, traceability, reporting tools,
               supply-chain enablement, and related services (collectively,
               "Services").
             </p>
             <p>
-              By downloading, installing, registering, subscribing to, or using
-              the App, you agree to be legally bound by these Terms of Use
+              By accessing, downloading, installing, registering, subscribing to, or using
+              the App, you acknowledge and agree to be legally bound by these Terms of Use
               ("Terms").
             </p>
           </div>
@@ -75,8 +75,8 @@ export default function Privacy() {
             2. Nature of Services (Important Agricultural Disclaimer)
           </h2>
           <p className="mb-4">
-            AGGROW provides data-driven insights, advisory inputs, analytics
-            tools, and enterprise management support tools.
+            AgGrow provides data-driven insights, advisory inputs, analytics
+            tools, and enterprise management support tools. The services are intended solely as decision-support tools and should not be relied upon as a substitute for professional agronomic, financial, or legal advice.
           </p>
           <p className="font-semibold text-foreground mb-3">The Company:</p>
           <ul className="space-y-2 text-justify ml-4 list-disc">
@@ -123,7 +123,7 @@ export default function Privacy() {
             </li>
           </ul>
           <p className="mt-4">
-            The Company may request proof of authorization for enterprise
+            The Company reserves the right to request proof of authorization for enterprise
             accounts.
           </p>
         </section>
@@ -137,7 +137,7 @@ export default function Privacy() {
           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
             4.1 Subscription Plans
           </h3>
-          <p className="mb-3">AGGROW may offer:</p>
+          <p className="mb-3">AgGrow may offer:</p>
           <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
             <li>Free trial plans</li>
             <li>Tiered subscription plans</li>
@@ -157,6 +157,7 @@ export default function Privacy() {
             <li>All fees are non-refundable except as required by law.</li>
             <li>Applicable taxes (e.g., GST) will be added.</li>
             <li>You must provide valid, current payment details.</li>
+            <li>Payments must be made in the specified currency, and you are responsible for any currency conversion charges.</li>
           </ul>
 
           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
@@ -172,7 +173,7 @@ export default function Privacy() {
             4.4 Enterprise Contracts
           </h3>
           <p className="mb-3">
-            If you are using AGGROW under a signed enterprise agreement:
+            If you are using AgGrow under a signed enterprise agreement:
           </p>
           <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
             <li>
@@ -199,10 +200,7 @@ export default function Privacy() {
             4.6 Price Changes
           </h3>
           <p className="mb-4">
-            We may adjust fees with at least 30 days' notice (via in-app
-            notification, email, or updated Terms). Continued use of the Service
-            after the effective date of any price change constitutes your
-            acceptance of the new fees.
+            We may adjust fees with at least 30 days' notice. Continued use after notice constitutes acceptance.
           </p>
         </section>
 
@@ -216,9 +214,9 @@ export default function Privacy() {
             5.1 User Data
           </h3>
           <p className="mb-4">
-            You own your farm data, crop data, soil information, and operational
-            data. You grant us a limited, non-exclusive, worldwide, royalty-free
-            license to process, store, analyze, and use anonymized/aggregated
+            You own your farm, crop, soil information, and operational
+            data input into the App. By using the services, you grant us a limited, non-exclusive, worldwide, royalty-free
+            license to process, store, analyse, and use anonymized/aggregated
             forms to deliver and improve Services. See our Privacy Policy for
             details.
           </p>
@@ -254,7 +252,7 @@ export default function Privacy() {
           <p>
             No guarantees of uninterrupted access unless specified in an
             enterprise SLA. We are not liable for downtime from internet issues,
-            third-party providers, government sources, force majeure, or
+            third-party providers, regulatory actions, government sources, force majeure, events or
             similar.
           </p>
         </section>
@@ -338,7 +336,7 @@ export default function Privacy() {
             <li>Abuse of platform services</li>
             <li>Breach of these Terms</li>
           </ul>
-          <p>Termination does not waive outstanding payment obligations.</p>
+          <p>Termination does not waive outstanding payment obligations accrued prior to termination, including outstanding payment obligations.</p>
         </section>
 
         {/* Section 13 */}
@@ -355,7 +353,7 @@ export default function Privacy() {
             <li>Pandemic</li>
             <li>War</li>
             <li>Power outages</li>
-            <li>Telecom failure</li>
+            <li>Telecom failure or similar events beyond our reasonable control</li>
           </ul>
         </section>
 
