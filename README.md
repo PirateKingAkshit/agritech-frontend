@@ -42,9 +42,3 @@ npm run build
 ```bash
 npm run start
 ```
-
-## Lint
-
-```bash
-npm run lint
-```
