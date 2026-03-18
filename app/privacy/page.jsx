@@ -55,16 +55,13 @@ export default function Privacy() {
               "us").
             </p>
             <p>
-              The App provides digital solutions including but not limited to
-              agricultural management tools, analytics, advisory services,
-              enterprise dashboards, farm data tracking, traceability, reporting tools,
-              supply-chain enablement, and related services (collectively,
-              "Services").
+             The App provides digital tools such as farm management, analytics, advisory insights, dashboards, reporting tools, traceability support, and supply chain enablement (collectively, “Services”).
             </p>
             <p>
-              By accessing, downloading, installing, registering, subscribing to, or using
-              the App, you acknowledge and agree to be legally bound by these Terms of Use
-              ("Terms").
+              AgGrow is a private technology platform and is NOT affiliated with, endorsed by, or representing any government authority, ministry, or agency.
+            </p>
+            <p>
+             By accessing or using the App, you agree to be bound by these Terms of Use (“Terms”).
             </p>
           </div>
         </section>
@@ -72,7 +69,7 @@ export default function Privacy() {
         {/* Section 2 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            2. Nature of Services (Important Agricultural Disclaimer)
+            2. Nature of Services 
           </h2>
           <p className="mb-4">
             AgGrow provides data-driven insights, advisory inputs, analytics
@@ -97,20 +94,48 @@ export default function Privacy() {
               are yours.
             </li>
           </ul>
+          <p>
+            Any references to government programs or public initiatives are provided strictly for informational purposes.
+          </p>
         </section>
 
         {/* Section 3 */}
-        <section className="mb-10">
+         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            3. Eligibility & Enterprise Use
+            3. Government Information Disclaimer
+          </h2>
+          <div className="space-y-4 text-justify">
+            <p>
+            The AgGrow Mobile Application may display or reference publicly available information related to agricultural schemes, weather updates, market prices, policies, or other agricultural resources for informational purposes only.
+            </p>
+            <p>
+              AgGrow is a private agriculture technology platform operated by Bartronics India Limited.
+            </p>
+            <p>
+              AgGrow does NOT represent, endorse, or operate on behalf of any Government authority, ministry, department, or agency.
+            </p>
+           <p>
+            The App does not process, submit, or approve applications for government schemes, subsidies, or benefits, unless explicitly stated through a separate written authorization or official partnership.
+           </p>
+           <p>
+            Information related to government programs or public initiatives is obtained from publicly available official government portals and open data sources.
+           </p>
+           <p>
+            AgGrow does not guarantee the completeness, accuracy, or timeliness of government-related information, and users should verify details directly from the respective official government websites before taking any action.
+           </p>
+          </div>
+        </section>
+{/* Section 4 */}
+  <section className="mb-10">
+          <h2 className="text-2xl font-bold text-primary mb-4">
+            4. Eligibility & Enterprise Use
           </h2>
           <p className="font-semibold text-foreground mb-3">
             You represent that:
           </p>
           <ul className="space-y-2 text-justify ml-4 list-disc">
             <li>
-              You are authorized to bind the farm, enterprise, organization,
-              FPO, distributor, or corporate entity you represent.
+             You are authorized to bind the farm, enterprise, organization, Farmer Producer Organisation (FPO)/ Farmer Producer Company (FPC), distributor, or corporate entity you represent.
             </li>
             <li>
               You will use the Services only for legitimate agricultural or
@@ -122,20 +147,16 @@ export default function Privacy() {
               Protection Act, 2023).
             </li>
           </ul>
-          <p className="mt-4">
-            The Company reserves the right to request proof of authorization for enterprise
-            accounts.
-          </p>
+         
         </section>
-
-        {/* Section 4 */}
+        {/* Section 5*/}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-6">
-            4. Subscription, Fees & Payments
+            5. Subscription, Fees & Payments
           </h2>
 
           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            4.1 Subscription Plans
+            5.1 Subscription Plans
           </h3>
           <p className="mb-3">AgGrow may offer:</p>
           <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
@@ -147,7 +168,7 @@ export default function Privacy() {
           <p className="mb-4">Features vary depending on the selected plan.</p>
 
           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            4.2 Payment Terms
+            5.2 Payment Terms
           </h3>
           <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
             <li>
@@ -161,33 +182,17 @@ export default function Privacy() {
           </ul>
 
           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            4.3 Auto-Renewal
+            5.3 Auto-Renewal
           </h3>
           <p className="mb-4">
             Subscriptions renew automatically unless cancelled via Google Play
-            or your enterprise agreement. Renewal charges will be applied to
-            your payment method on file.
+            or your enterprise agreement. Renewal charges apply to your payment method.
           </p>
 
-          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            4.4 Enterprise Contracts
-          </h3>
-          <p className="mb-3">
-            If you are using AgGrow under a signed enterprise agreement:
-          </p>
-          <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
-            <li>
-              The written enterprise agreement shall prevail in case of any
-              conflict with these Terms.
-            </li>
-            <li>
-              Payment timelines, SLA commitments, and custom pricing will be
-              governed by that contract.
-            </li>
-          </ul>
+          
 
           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            4.5 Suspension for Non-Payment
+            5.4 Suspension for Non-Payment
           </h3>
           <p className="mb-3">We reserve the right to:</p>
           <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
@@ -197,84 +202,235 @@ export default function Privacy() {
           </ul>
 
           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            4.6 Price Changes
+            5.5 Price Changes
           </h3>
           <p className="mb-4">
             We may adjust fees with at least 30 days' notice. Continued use after notice constitutes acceptance.
           </p>
         </section>
 
-        {/* Section 5 */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-bold text-primary mb-4">
-            5. Data Ownership & Agricultural Data Rights
-          </h2>
-
-          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            5.1 User Data
-          </h3>
-          <p className="mb-4">
-            You own your farm, crop, soil information, and operational
-            data input into the App. By using the services, you grant us a limited, non-exclusive, worldwide, royalty-free
-            license to process, store, analyse, and use anonymized/aggregated
-            forms to deliver and improve Services. See our Privacy Policy for
-            details.
-          </p>
-
-          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
-            5.2 Aggregated Data
-          </h3>
-          <p>
-            We may use anonymized, aggregated data for research, analytics,
-            product improvement, and industry benchmarking without identifying
-            individual users.
-          </p>
-        </section>
-
         {/* Section 6 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            6. Compliance With Agricultural & Trade Laws
+            6. Data Ownership & Use
           </h2>
+
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.1 Ownership of User Data
+          </h3>
+          <p className="mb-4">
+           You retain all rights, title, and interest in and to the data you submit, upload, generate, or transmit through the App, including but not limited to farm records, crop information, soil data, operational data, financial inputs, images, geolocation information, device data, and enterprise records (“User Data”).
+          </p>
+ <p>
+  Nothing in these Terms transfers ownership of User Data to the Company.
+ </p>
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.2 License to Use Data
+          </h3>
           <p>
-            You must comply with all agricultural, trade, environmental, and
-            data laws. Do not use the App for illegal activities (e.g.,
-            unauthorized pesticide distribution). We bear no liability for your
-            non-compliance.
+           By using the Services, you grant the Company a limited, non-exclusive, worldwide, royalty-free, revocable license to collect, process, store, host, transmit, analyse, and use User Data solely for the following purposes:
+          </p>
+         <ol className="list-none ">
+  <li>(a) Providing, maintaining, and improving the Services</li>
+  <li>(b) Generating insights, analytics, reports, and decision-support tools</li>
+  <li>(c) Enabling platform functionality and user support</li>
+  <li>(d) Ensuring security, fraud detection, and system integrity</li>
+  <li>(e) Performing internal research, testing, and product development</li>
+  <li>(f) Complying with legal or regulatory obligations</li>
+</ol>
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+          6.3 Aggregated and Anonymized Data
+          </h3>
+
+          <p>
+            The Company may create anonymized, de-identified, or aggregated datasets derived from User Data that do not identify any individual user, farm, or enterprise.
+          </p>
+          <br/>
+           <p className="mb-3">Such aggregated data may be used for:</p>
+          <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
+            <li>Statistical analysis</li>
+            <li>Product improvement</li>
+            <li>Research and development</li>
+            <li>
+              Benchmarking and industry insights
+            </li>
+            <li>
+              Training analytical or machine learning models
+            </li>
+          </ul>
+          <p>
+            Aggregated data shall not be used to identify or target individual users.
+          </p>
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.4 Data Processing Transparency
+          </h3>
+          <p>
+            We process data in accordance with applicable data protection laws, including the Digital Personal Data Protection Act, 2023.
+          </p>
+          <br/>
+          <p>
+            We implement reasonable administrative, technical, and organizational safeguards designed to protect data against unauthorized access, loss, misuse, or disclosure.
+          </p>
+           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.5 Personal Data and Consent
+          </h3>
+          <p>
+            Where User Data includes personal information, you represent that you have obtained all necessary consents and lawful authority to provide such data.
+          </p>
+          <br/>
+          <p>
+            You agree to use the App in compliance with applicable privacy and data protection laws
+          </p>
+        <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.6 Government and Public Data Sources
+          </h3>
+          <p>
+            Where the App integrates or displays publicly available data (including weather feeds, market prices, or government information), such data is sourced from third-party or official public sources and is provided for informational purposes only.
+          </p>
+          <p>
+            <br/>
+            The Company does not guarantee accuracy or completeness of such external data.
+          </p>
+        <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.7 Data Sharing with Service Providers
+          </h3>
+          <p>
+            We may share User Data with trusted service providers, cloud infrastructure providers, analytics partners, or contractors strictly on a need-to-know basis and subject to confidentiality and data protection obligations.
+          </p>
+          <br/>
+          <p>
+            We do not sell personal data.
+          </p>
+           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.8 Data Security
+          </h3>
+        <p>
+          While we implement commercially reasonable security measures, no system can be completely secure. You acknowledge and accept inherent risks associated with digital platforms and internet transmissions.
+        </p>
+        <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+          6.9 Data Retention
+        </h3>
+        <p>
+          We retain User Data only for as long as necessary to provide the Services, comply with legal obligations, resolve disputes, enforce agreements, and maintain business records.
+        </p>
+        <br/>
+        <p>
+          Upon account termination, data may be deleted, anonymized, or retained as required by law or legitimate business purposes.
+        </p>
+       <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+          6.10 User Responsibilities
+        </h3>
+         <p className="mb-3">You are responsible for:</p>
+          <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
+            <li>Accuracy of data you provide</li>
+            <li>Maintaining confidentiality of account credentials</li>
+            <li>Ensuring lawful collection of data entered into the App</li>
+            <li>
+              Backing up critical records where necessary
+            </li>
+           
+          </ul>
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.11 Data Portability and Access
+          </h3>
+          <p>
+            Subject to technical feasibility and applicable laws, you may request access to or export of your data through supported features or by contacting us.
+          </p>
+           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.12 AI and Analytics Use
+          </h3>
+          <p>
+            Where analytics, automation, or AI tools are used, outputs are generated based on available data and models and are intended solely as informational support.
+          </p>
+          <br/>
+          <p>
+            They should not be treated as guaranteed outcomes or professional advice.
+          </p>
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.13 Cross-Border Processing
+          </h3>
+          <p>
+            User Data may be processed or stored on secure servers located in jurisdictions permitted under applicable law.
+          </p>
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.14 Suspension or Legal Disclosure
+          </h3>
+           <p className="mb-3">We may access, preserve, or disclose data if required to:</p>
+          <ul className="space-y-2 text-justify ml-6 list-disc mb-4">
+            <li>Comply with law or legal process</li>
+            <li>Enforce these Terms</li>
+            <li>Protect users or platform security</li>
+            <li>
+             Investigate fraud or misuse
+            </li>
+           
+          </ul>
+           <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.15 No Unauthorized Commercial Use
+          </h3>
+          <p>
+            You agree not to extract, scrape, or misuse platform data for unauthorized commercial purposes.
+          </p>
+          <h3 className="text-lg font-semibold text-foreground mb-3 mt-6">
+            6.16 Survival
+          </h3>
+          <p>
+            This section shall survive termination of your account or these Terms.
           </p>
         </section>
 
         {/* Section 7 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            7. Service Availability & SLA Disclaimer
+            7. Compliance With Laws
           </h2>
           <p>
-            No guarantees of uninterrupted access unless specified in an
-            enterprise SLA. We are not liable for downtime from internet issues,
-            third-party providers, regulatory actions, government sources, force majeure, events or
-            similar.
+          You agree not to use the App for unlawful activities, including unauthorized sale of regulated agricultural inputs.
+          </p>
+          <p>
+            We are not responsible for your regulatory compliance.
           </p>
         </section>
 
         {/* Section 8 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            8. Limitation of Agricultural & Commercial Liability
+            8. Service Availability 
+          </h2>
+          <p>
+           We use commercially reasonable efforts to keep the AgGrow platform available; however, the Services are provided on an “as available” and “as is” basis without guarantees of uninterrupted or error-free operation.
+          </p>
+          <br/>
+          <p>
+            Access may be limited or interrupted due to maintenance, technical issues, internet or telecom failures, third-party service disruptions (including weather or data providers), security updates, or events beyond our control.
+          </p>
+          <br/>
+          <p>
+            We may modify, suspend, or discontinue features at any time to improve the Services or comply with legal or operational requirements.
+          </p>
+          <br/>
+          <p>
+            We are not responsible for downtime caused by user devices, connectivity issues, or external systems. Any service level commitments apply only where expressly agreed in a separate written enterprise agreement.
+          </p>
+        </section>
+
+        {/* Section 9 */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-primary mb-4">
+            9. Limitation of Liability
           </h2>
           <p className="mb-4">
-            To the fullest extent permitted by law: Bartronics India Limited
-            shall NOT be liable for:
+            To the maximum extent permitted by law, the Company is not liable for:
           </p>
           <ul className="space-y-2 text-justify ml-4 list-disc mb-4">
             <li>Crop loss</li>
-            <li>Weather-related damage</li>
-            <li>Pest outbreaks</li>
-            <li>Market price fluctuations</li>
-            <li>Supply-chain disruption</li>
-            <li>Financial loss</li>
-            <li>Loss of government subsidy eligibility</li>
+            <li>Weather impacts</li>
+            <li>Pest or disease events</li>
+            <li>Market price changes</li>
+            <li>Loss of subsidy eligibility</li>
+            <li>Financial losses</li>
             <li>Business interruption</li>
+           
           </ul>
           <p>
             Total liability shall not exceed the total subscription fees paid by
@@ -282,27 +438,21 @@ export default function Privacy() {
           </p>
         </section>
 
-        {/* Section 9 */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-bold text-primary mb-4">
-            9. Indemnification
-          </h2>
-          <p className="mb-3">
-            You agree to indemnify and hold harmless Bartronics India Limited
-            against:
-          </p>
-          <ul className="space-y-2 text-justify ml-4 list-disc">
-            <li>Claims arising from misuse of agricultural data</li>
-            <li>Regulatory violations by your enterprise</li>
-            <li>Third-party claims relating to your farming practices</li>
-            <li>Unauthorized resale or distribution of the Services</li>
-          </ul>
-        </section>
-
         {/* Section 10 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            10. Intellectual Property
+            10. Indemnification
+          </h2>
+          <p className="mb-3">
+           You agree to indemnify the Company against claims arising from misuse of the App, regulatory violations, or third-party disputes related to your operations.
+          </p>
+         
+        </section>
+
+        {/* Section 11 */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-primary mb-4">
+            11. Intellectual Property
           </h2>
           <p>
             Our software, algorithms, models, dashboards, designs, trademarks,
@@ -312,10 +462,10 @@ export default function Privacy() {
           </p>
         </section>
 
-        {/* Section 11 */}
+        {/* Section 12 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            11. Confidentiality (Enterprise Users)
+            12. Confidentiality (Enterprise Users)
           </h2>
           <p>
             Enterprise users must keep our pricing, architecture, and processes
@@ -323,10 +473,10 @@ export default function Privacy() {
           </p>
         </section>
 
-        {/* Section 12 */}
+        {/* Section 13 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            12. Termination
+            13. Termination
           </h2>
           <p className="mb-3">We may suspend or terminate accounts for:</p>
           <ul className="space-y-2 text-justify ml-4 list-disc mb-4">
@@ -335,14 +485,17 @@ export default function Privacy() {
             <li>Fraud</li>
             <li>Abuse of platform services</li>
             <li>Breach of these Terms</li>
+            <li>
+              Termination does not waive outstanding payment obligations accrued prior to termination, including outstanding payment obligations.
+            </li>
           </ul>
-          <p>Termination does not waive outstanding payment obligations accrued prior to termination, including outstanding payment obligations.</p>
+         
         </section>
 
-        {/* Section 13 */}
+        {/* Section 14 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            13. Force Majeure
+            14. Force Majeure
           </h2>
           <p className="mb-3">
             The Company shall not be liable for failure or delay due to:
@@ -357,10 +510,10 @@ export default function Privacy() {
           </ul>
         </section>
 
-        {/* Section 14 */}
+        {/* Section 15 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            14. Governing Law & Jurisdiction
+            15. Governing Law & Jurisdiction
           </h2>
           <p className="mb-4">
             These Terms shall be governed by the laws of India.
@@ -375,10 +528,10 @@ export default function Privacy() {
           </p>
         </section>
 
-        {/* Section 15 */}
+        {/* Section 16 */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            15. Contact Information
+            16. Contact Information
           </h2>
           <div className="bg-card p-6 rounded-lg border border-border">
             <p className="font-semibold text-foreground mb-2">
